@@ -1,0 +1,16 @@
+<form x-show="open" hx-get="confirmation.html" hx-swap="outerHTML">
+    <div>
+        <label for="firstname">First Name</label>
+        <input type="text" id="firstname" name="firstname" value="">
+    </div>
+    <div >
+        <label for="lastname">Last Name</label>
+        <input type="text" id="lastname" name="lastname" value="">
+    </div>
+    <div >
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" value="">
+    </div>
+    <button type="button" x-on:click="open = false">Cancel</button>
+    <button type="submit">Submit</button>
+</form>
