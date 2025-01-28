@@ -3,12 +3,16 @@ package main
 import (
 	"embed"
 	"fmt"
+	"html/template"
 	"io/fs"
 	"net/http"
 )
 
 //go:embed public
 var public embed.FS
+
+//go:embed templates
+var templates embed.FS
 
 func unwrap[T any](output T, err error) T {
 	if err != nil {
@@ -23,8 +27,10 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(r.Form)
 	w.WriteHeader(http.StatusAccepted)
+	fmt.Println(r.Form)
+	tmpl, _ := template.ParseFS(templates, "templates/order/confirmation.html")
+	_ = tmpl.Execute(w, struct{ Status string }{Status: "accepted"})
 }
 
 func main() {
