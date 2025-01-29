@@ -18,5 +18,9 @@ func (c *Controller) postNewOrder(w http.ResponseWriter, r *http.Request) {
 
 func (c *Controller) getNewOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("received Get request: ", r)
-	_ = c.tmpl["order/get_new"].Execute(w, nil)
+	type cake struct {
+		Name string
+		ID   int
+	}
+	_ = c.tmpl["order/get_new"].Execute(w, struct{ Cakes []cake }{Cakes: []cake{cake{"Hello", 1}, cake{"World", 2}}})
 }

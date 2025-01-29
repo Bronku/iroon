@@ -6,6 +6,7 @@
     <title>IROON</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <script src="htmx-2.04.js"></script>
+    <script src="script.js"></script>
     <script defer src="alpine-3.14.8.js"></script>
 </head>
 
@@ -16,7 +17,7 @@
     <main>
         <div id="new_order" x-data="{open:false}">
             <button x-on:click="open = !open" x-show="!open">New Order</button>
-            <form hx-get="/order/new" hx-swap="innerHTML" hx-trigger="load"></form>
+            <form hx-get="/order/new" hx-swap="outerHTML" hx-trigger="load"></form>
         </div>
     </main>
 </body>

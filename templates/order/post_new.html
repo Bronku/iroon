@@ -1,5 +1,6 @@
 <div id="order_confirmation" hx-get="new_order.html" hx-swap="outerHTML">
-    <button hx-get="new_order.html" hx-target="#order_confirmation" hx-swap="outerHTML" x-on:click="open = false">Back</button>
-    <button hx-get="new_order.html" hx-target="#order_confirmation" hx-swap="outerHTML">New Order</button>
+    <button hx-get="order/new" hx-target="#order_confirmation" hx-swap="outerHTML"
+        x-on:click="open = false">Back</button>
+    <button hx-get="order/new" hx-target="#order_confirmation" hx-swap="outerHTML">New Order</button>
     {{.Status}}
 </div>
