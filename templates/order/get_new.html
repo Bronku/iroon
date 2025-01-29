@@ -1,4 +1,4 @@
-<form x-show="open" hx-post="order/new" hx-swap="outerHTML" x-data="{cakes:[]}" id="new_cake_form">
+<form x-show="open" hx-post="order/new" hx-swap="innerHTML" hx-target="#response" id="new_cake_form">
     <div>
         <label for="firstname">First Name</label>
         <input type="text" id="firstname" name="firstname" required value="">
@@ -46,4 +46,5 @@
             parent.appendChild(selected)
         })
     </script>
+    <div id="order_confirmation"></div>
 </form>

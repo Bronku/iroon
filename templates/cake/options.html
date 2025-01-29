@@ -1,0 +1,41 @@
+<select id="dropdown">
+    <option value="">Select an item...</option>
+    {{range .Cakes}}
+    <option value="{{.ID}}">{{.Name}}</option>
+    {{end}}
+</select>
+<script>
+    document.getElementById("dropdown").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex]
+        selectedOption.disabled = true;
+
+        const label = document.createElement('label')
+        label.innerText = this.options[this.selectedIndex].text
+        label.setAttribute("for", "cake[" + this.value + "]")
+
+        const input = document.createElement('input')
+        input.setAttribute("type", "number")
+        input.setAttribute("id", "cake[" + this.value + "]")
+        input.setAttribute("name", "cake[" + this.value + "]")
+        input.setAttribute("value", 1)
+
+        const selected = document.createElement('div')
+        selected.appendChild(label)
+        selected.appendChild(input)
+
+        const deleteButton = document.createElement('button')
+        deleteButton.setAttribute("type", "button")
+        deleteButton.innerText = "delete"
+        deleteButton.addEventListener("click", function () {
+            selected.remove()
+            selectedOption.disabled = false
+        })
+
+        selected.appendChild(deleteButton)
+
+        const parent = document.getElementById("selected_cakes")
+        parent.appendChild(selected)
+
+        this.selectedIndex = 0;
+    })
+</script>

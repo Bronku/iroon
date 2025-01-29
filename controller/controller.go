@@ -15,7 +15,7 @@ type Controller struct {
 func (c *Controller) LoadTemplates(fs fs.FS) {
 	c.tmpl = make(map[string]*template.Template)
 	c.tmpl["order/post_new"], _ = template.ParseFS(fs, "templates/order/post_new.html")
-	c.tmpl["order/get_new"], _ = template.ParseFS(fs, "templates/order/get_new.html")
+	c.tmpl["cake/options"], _ = template.ParseFS(fs, "templates/cake/options.html")
 }
 
 func (c *Controller) LoadRouter(pub fs.FS) {
@@ -23,7 +23,7 @@ func (c *Controller) LoadRouter(pub fs.FS) {
 
 	serveMux.Handle("GET /", http.FileServerFS(unwrap(fs.Sub(pub, "public"))))
 	serveMux.HandleFunc("POST /order/new", c.postNewOrder)
-	serveMux.HandleFunc("GET /order/new", c.getNewOrder)
+	serveMux.HandleFunc("GET /cake/options", c.cakeOptions)
 
 	c.Handler = serveMux
 }
