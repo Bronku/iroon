@@ -46,7 +46,7 @@
                 </script>
             </form>
             <!--A dropdown with all available cakes loaded dynamically-->
-            <div hx-get="cake/options" hx-swap="innerHTML" hx-trigger="load" hx-target="closest div">
+            <div hx-get="available_cakes" hx-swap="outerHTML" hx-trigger="load">
             </div>
             <!--A space to fit the response after submitting the form-->
             <div id="new_order_response"></div>
