@@ -2,8 +2,9 @@
     <h3>Cakes</h3>
     <button hx-get="edit_cakes" hx-swap="outerHTML" hx-target="closest div">edit</button>
     <div id="cakes">
-        {{range .Cakes}}
-        <button onclick="addCake('{{.ID}}', '{{.Name}}')">{{.Name}}</button>
+        {{range $key, $value := .}}
+        <button onclick="addCake('{{$key}}', '{{$value.Name}} ({{$value.Price}})')">{{$value.Name}}
+            {{$value.Price}}</button>
         {{end}}
     </div>
     <script>

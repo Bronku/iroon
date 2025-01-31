@@ -6,8 +6,14 @@ import (
 	"net/http"
 )
 
+type Cake struct {
+	Name  string
+	Price int
+}
+
 type controller struct {
-	tmpl map[string]*template.Template
+	tmpl  map[string]*template.Template
+	cakes map[int]Cake
 	http.Handler
 }
 

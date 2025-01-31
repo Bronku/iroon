@@ -3,8 +3,9 @@
     <button hx-get="available_cakes" hx-swap="outerHTML" hx-target="closest div">back</button>
     <button hx-get="cake_editor" hx-swap="innerHTML" hx-target="#cake_editor">New</button>
     <div id="cakes">
-        {{range .Cakes}}
-        <button hx-get="cake_editor/{{.ID}}" hx-swap="innerHTML" hx-target="#cake_editor">{{.Name}}</button>
+        {{range $key, $value := .}}
+        <button hx-get="cake_editor/{{$key}}" hx-swap="innerHTML" hx-target="#cake_editor">{{$value.Name}}
+            {{$value.Price}}</button>
         {{end}}
     </div>
     <div id="cake_editor"></div>

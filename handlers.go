@@ -8,39 +8,37 @@ import (
 )
 
 func (c *controller) cakeOptions(w http.ResponseWriter, r *http.Request) {
-	type cake struct {
-		Name string
-		ID   int
-	}
 	w.Header().Set("Content-Type", "text/html")
 	template := strings.Split(r.URL.String(), "/")[1]
-	c.tmpl[template].Execute(w, struct{ Cakes []cake }{Cakes: []cake{{"Hello", 1}, {"World", 2}}})
+	c.tmpl[template].Execute(w, c.cakes)
 }
 
 func (c *controller) cakeEditor(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("received get request at ", r.URL.String())
-	type cake struct {
-		Name  string
-		ID    int
-		Price int
+	type contents struct {
+		ID   int
+		Cake Cake
 	}
 
 	url := strings.Split(r.URL.String(), "/")
-
 	if len(url) < 3 {
-		fmt.Println("no arg")
-		c.tmpl["cake_editor"].Execute(w, cake{"", 0, 0})
+		c.tmpl["cake_editor"].Execute(w, contents{-1, Cake{"", 0}})
 		return
 	}
 
 	id, err := strconv.Atoi(url[2])
 	if err != nil {
-		fmt.Println("can't get info")
-		c.tmpl["cake_editor"].Execute(w, cake{"", 0, 0})
+		c.tmpl["cake_editor"].Execute(w, contents{0, Cake{"", 0}})
 		return
 	}
 
-	c.tmpl["cake_editor"].Execute(w, cake{"Hello", id, 120})
+	cake, exists := c.cakes[id]
+	if !exists {
+		c.tmpl["cake_editor"].Execute(w, contents{0, Cake{"", 0}})
+		return
+	}
+
+	out := contents{id, cake}
+	c.tmpl["cake_editor"].Execute(w, out)
 }
 
 func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
@@ -50,24 +48,30 @@ func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type cake struct {
-		Name  string
-		ID    int
-		Price int
+	type contents struct {
+		ID   int
+		Cake Cake
 	}
-	var out cake
-	out.Name = r.FormValue("name")
-	out.Price, err = strconv.Atoi(r.FormValue("price"))
+
+	var in contents
+	in.Cake.Name = r.FormValue("name")
+	in.Cake.Price, err = strconv.Atoi(r.FormValue("price"))
 	if err != nil {
 		c.tmpl["alert"].Execute(w, err)
 		return
 	}
-	out.ID, err = strconv.Atoi(r.FormValue("id"))
+	in.ID, err = strconv.Atoi(r.FormValue("id"))
 	if err != nil {
 		c.tmpl["alert"].Execute(w, err)
 		return
 	}
-	_ = c.tmpl["cake"].Execute(w, out)
+
+	if in.ID == -1 {
+		in.ID = len(c.cakes)
+	}
+
+	c.cakes[in.ID] = in.Cake
+	_ = c.tmpl["cake"].Execute(w, in)
 }
 
 func (c *controller) postNewOrder(w http.ResponseWriter, r *http.Request) {

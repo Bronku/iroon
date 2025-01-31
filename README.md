@@ -1,9 +1,12 @@
 # iroon
 ## todo:
-- extract order creation form into it's own element
-- option to add additional cakes
-- saving orders on server
-- displaying orders
+- [ ] extract order creation form into it's own element
+- [x] option to add additional cakes
+- [x] saving orders on server
+- [ ] displaying orders
+- [ ] move id to cake struct
+- [ ] refresh the list on submission
+- [ ] peristent storage
 ## ux design
 ### adding an order:
 1. user selects the _add order_ button
