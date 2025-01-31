@@ -6,7 +6,6 @@ import (
 
 	"net/http"
 
-	"github.com/Bronku/iroon/controller"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -17,8 +16,8 @@ var public embed.FS
 var templates embed.FS
 
 func main() {
-	var c controller.Controller
-	c.LoadTemplates(templates)
+	var c controller
+	c.tmpl = LoadTemplates(templates)
 	c.LoadRouter(public)
 
 	err := http.ListenAndServe(":8080", c)

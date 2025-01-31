@@ -1,4 +1,9 @@
 # iroon
+## todo:
+- extract order creation form into it's own element
+- option to add additional cakes
+- saving orders on server
+- displaying orders
 ## ux design
 ### adding an order:
 1. user selects the _add order_ button
