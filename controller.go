@@ -18,7 +18,7 @@ func (c *controller) LoadRouter(pub fs.FS) {
 	serveMux.HandleFunc("POST /order/new", c.postNewOrder)
 	serveMux.HandleFunc("GET /available_cakes", c.cakeOptions)
 	serveMux.HandleFunc("GET /edit_cakes", c.cakeOptions)
-	serveMux.HandleFunc("GET /cake_editor", c.editCakes)
+	serveMux.HandleFunc("GET /cake_editor", c.cakeEditor)
 	serveMux.HandleFunc("POST /new_cake", c.newCake)
 
 	c.Handler = serveMux

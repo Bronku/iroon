@@ -4,7 +4,7 @@
     <button hx-get="cake_editor" hx-swap="innerHTML" hx-target="#cake_editor">New</button>
     <div id="cakes">
         {{range .Cakes}}
-        <button>{{.Name}}</button>
+        <button hx-get="cake_editor/{{.ID}}" hx-swap="innerHTML" hx-target="#cake_editor">{{.Name}}</button>
         {{end}}
     </div>
     <div id="cake_editor"></div>

@@ -17,12 +17,13 @@ func (c *controller) cakeOptions(w http.ResponseWriter, r *http.Request) {
 	c.tmpl[template].Execute(w, struct{ Cakes []cake }{Cakes: []cake{{"Hello", 1}, {"World", 2}}})
 }
 
-func (c *controller) editCakes(w http.ResponseWriter, r *http.Request) {
+func (c *controller) cakeEditor(w http.ResponseWriter, r *http.Request) {
 	type cake struct {
 		Name  string
 		ID    int
 		Price int
 	}
+
 	w.Header().Set("Content-Type", "text/html")
 	c.tmpl["cake_editor"].Execute(w, cake{"Hello", 1, 120})
 }
