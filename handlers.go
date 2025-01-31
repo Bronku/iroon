@@ -18,14 +18,29 @@ func (c *controller) cakeOptions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *controller) cakeEditor(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("received get request at ", r.URL.String())
 	type cake struct {
 		Name  string
 		ID    int
 		Price int
 	}
 
-	w.Header().Set("Content-Type", "text/html")
-	c.tmpl["cake_editor"].Execute(w, cake{"Hello", 1, 120})
+	url := strings.Split(r.URL.String(), "/")
+
+	if len(url) < 3 {
+		fmt.Println("no arg")
+		c.tmpl["cake_editor"].Execute(w, cake{"", 0, 0})
+		return
+	}
+
+	id, err := strconv.Atoi(url[2])
+	if err != nil {
+		fmt.Println("can't get info")
+		c.tmpl["cake_editor"].Execute(w, cake{"", 0, 0})
+		return
+	}
+
+	c.tmpl["cake_editor"].Execute(w, cake{"Hello", id, 120})
 }
 
 func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
