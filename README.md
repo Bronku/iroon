@@ -19,4 +19,8 @@
     1. after submission the user should get a confirmation, and an order id along with the link to said order page
     2. the form should disappear after submission
     3. there should be a button to go back to creating a new form
+### adding a new cake: 
+1. user selects the _new cake_ button
+2. enters the new details
+3. user selects submit
     

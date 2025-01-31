@@ -6,7 +6,6 @@
     <title>IROON</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <script src="htmx-2.04.js"></script>
-    <script src="script.js" defer></script>
 </head>
 
 <body>
@@ -43,12 +42,12 @@
                 <script>
                     document.getElementById("reset_button").addEventListener("click", function () {
                         document.getElementById("selected_cakes").innerHTML = "";
-                        document.querySelectorAll("#dropdown option").forEach(option => option.disabled = false);
                     })
                 </script>
             </form>
             <!--A dropdown with all available cakes loaded dynamically-->
-            <div hx-get="cake/options" hx-swap="outerHTML" hx-trigger="load" hx-target="closest div"></div>
+            <div hx-get="cake/options" hx-swap="innerHTML" hx-trigger="load" hx-target="closest div">
+            </div>
             <!--A space to fit the response after submitting the form-->
             <div id="new_order_response"></div>
         </div>

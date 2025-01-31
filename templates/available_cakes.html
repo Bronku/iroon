@@ -1,22 +1,24 @@
-<select id="dropdown">
-    <option value="">Select an item...</option>
+<div id="add_cakes_dropdown">
     {{range .Cakes}}
-    <option value="{{.ID}}">{{.Name}}</option>
+    <button onclick="addCake('{{.ID}}', '{{.Name}}')" id=" cake_button[{{.ID}}]">{{.Name}}</button>
     {{end}}
-</select>
+</div>
 <script>
-    document.getElementById("dropdown").addEventListener("change", function () {
-        const selectedOption = this.options[this.selectedIndex]
-        selectedOption.disabled = true;
+    function addCake(id, name) {
+        const existing = document.getElementById("cake[" + id + "]")
+        if (existing != null) {
+            existing.value++
+            return
+        }
 
         const label = document.createElement('label')
-        label.innerText = this.options[this.selectedIndex].text
-        label.setAttribute("for", "cake[" + this.value + "]")
+        label.innerText = name
+        label.setAttribute("for", "cake[" + id + "]")
 
         const input = document.createElement('input')
         input.setAttribute("type", "number")
-        input.setAttribute("id", "cake[" + this.value + "]")
-        input.setAttribute("name", "cake[" + this.value + "]")
+        input.setAttribute("id", "cake[" + id + "]")
+        input.setAttribute("name", "cake[" + id + "]")
         input.setAttribute("value", 1)
 
         const selected = document.createElement('div')
@@ -28,14 +30,11 @@
         deleteButton.innerText = "delete"
         deleteButton.addEventListener("click", function () {
             selected.remove()
-            selectedOption.disabled = false
         })
 
         selected.appendChild(deleteButton)
 
         const parent = document.getElementById("selected_cakes")
         parent.appendChild(selected)
-
-        this.selectedIndex = 0;
-    })
+    }
 </script>
