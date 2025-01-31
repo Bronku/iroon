@@ -14,7 +14,7 @@ type Controller struct {
 // #todo: load all automatically
 func (c *Controller) LoadTemplates(fs fs.FS) {
 	c.tmpl = make(map[string]*template.Template)
-	c.tmpl["order/post_new"], _ = template.ParseFS(fs, "templates/order/post_new.html")
+	c.tmpl["order/confirmation"], _ = template.ParseFS(fs, "templates/order/confirmation.html")
 	c.tmpl["cake/options"], _ = template.ParseFS(fs, "templates/cake/options.html")
 }
 

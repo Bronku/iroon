@@ -9,9 +9,9 @@ func (c *Controller) postNewOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("received Post request: ", r)
 	err := r.ParseForm()
 	if err != nil {
-		_ = c.tmpl["order/post_new"].Execute(w, struct{ Status any }{Status: err})
+		_ = c.tmpl["order/confirmation"].Execute(w, struct{ Status any }{Status: err})
 	}
 	w.WriteHeader(http.StatusAccepted)
 	fmt.Println(r.Form)
-	_ = c.tmpl["order/post_new"].Execute(w, struct{ Status any }{Status: r.Form})
+	_ = c.tmpl["order/confirmation"].Execute(w, struct{ Status any }{Status: r.Form})
 }
