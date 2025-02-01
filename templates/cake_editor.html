@@ -1,11 +1,11 @@
 <form hx-post="new_cake" hx-swap="outerHTML">
     <div>
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" required value="{{.Cake.Name}}">
+        <input type="text" id="name" name="name" required value="{{.Name}}">
     </div>
     <div>
         <label for="price">Price</label>
-        <input type="number" id="price" name="price" step="0.01" min="0" required value="{{.Cake.Price}}">
+        <input type="number" id="price" name="price" step="0.01" min="0" required value="{{.Price}}">
     </div>
     <input value="{{.ID}}" name="id" hidden></input>
     <button type="submit">Submit</button>

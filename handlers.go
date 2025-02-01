@@ -14,31 +14,25 @@ func (c *controller) cakeOptions(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *controller) cakeEditor(w http.ResponseWriter, r *http.Request) {
-	type contents struct {
-		ID   int
-		Cake Cake
-	}
-
 	url := strings.Split(r.URL.String(), "/")
 	if len(url) < 3 {
-		c.tmpl["cake_editor"].Execute(w, contents{-1, Cake{"", 0}})
+		c.tmpl["cake_editor"].Execute(w, Cake{"", 0, -1})
 		return
 	}
 
 	id, err := strconv.Atoi(url[2])
 	if err != nil {
-		c.tmpl["cake_editor"].Execute(w, contents{0, Cake{"", 0}})
+		c.tmpl["cake_editor"].Execute(w, Cake{"", 0, -1})
 		return
 	}
 
 	cake, exists := c.cakes[id]
 	if !exists {
-		c.tmpl["cake_editor"].Execute(w, contents{0, Cake{"", 0}})
+		c.tmpl["cake_editor"].Execute(w, Cake{"", 0, -1})
 		return
 	}
 
-	out := contents{id, cake}
-	c.tmpl["cake_editor"].Execute(w, out)
+	c.tmpl["cake_editor"].Execute(w, cake)
 }
 
 func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
@@ -48,14 +42,9 @@ func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type contents struct {
-		ID   int
-		Cake Cake
-	}
-
-	var in contents
-	in.Cake.Name = r.FormValue("name")
-	in.Cake.Price, err = strconv.Atoi(r.FormValue("price"))
+	var in Cake
+	in.Name = r.FormValue("name")
+	in.Price, err = strconv.Atoi(r.FormValue("price"))
 	if err != nil {
 		c.tmpl["alert"].Execute(w, err)
 		return
@@ -70,7 +59,7 @@ func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
 		in.ID = len(c.cakes)
 	}
 
-	c.cakes[in.ID] = in.Cake
+	c.cakes[in.ID] = in
 	_ = c.tmpl["cake"].Execute(w, in)
 }
 

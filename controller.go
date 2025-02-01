@@ -9,6 +9,7 @@ import (
 type Cake struct {
 	Name  string
 	Price int
+	ID    int
 }
 
 type controller struct {

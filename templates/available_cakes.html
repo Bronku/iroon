@@ -3,7 +3,7 @@
     <button hx-get="edit_cakes" hx-swap="outerHTML" hx-target="closest div">edit</button>
     <div id="cakes">
         {{range $key, $value := .}}
-        <button onclick="addCake('{{$key}}', '{{$value.Name}} ({{$value.Price}})')">{{$value.Name}}
+        <button onclick="addCake('{{$value.ID}}', '{{$value.Name}} ({{$value.Price}})')">{{$value.Name}}
             {{$value.Price}}</button>
         {{end}}
     </div>
