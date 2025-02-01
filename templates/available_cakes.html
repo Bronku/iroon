@@ -1,45 +1,43 @@
-<div>
-    <h3>Cakes</h3>
-    <button hx-get="edit_cakes" hx-swap="outerHTML" hx-target="closest div">edit</button>
-    <div id="cakes">
-        {{range $key, $value := .}}
-        <button onclick="addCake('{{$value.ID}}', '{{$value.Name}} ({{$value.Price}})')">{{$value.Name}}
-            {{$value.Price}}</button>
-        {{end}}
-    </div>
-    <script>
-        function addCake(id, name) {
-            const existing = document.getElementById("cake[" + id + "]")
-            if (existing != null) {
-                existing.value++
-                return
-            }
-
-            const label = document.createElement('label')
-            label.innerText = name
-            label.setAttribute("for", "cake[" + id + "]")
-
-            const input = document.createElement('input')
-            input.setAttribute("type", "number")
-            input.setAttribute("id", "cake[" + id + "]")
-            input.setAttribute("name", "cake[" + id + "]")
-            input.setAttribute("value", 1)
-
-            const selected = document.createElement('div')
-            selected.appendChild(label)
-            selected.appendChild(input)
-
-            const deleteButton = document.createElement('button')
-            deleteButton.setAttribute("type", "button")
-            deleteButton.innerText = "delete"
-            deleteButton.addEventListener("click", function () {
-                selected.remove()
-            })
-
-            selected.appendChild(deleteButton)
-
-            const parent = document.getElementById("selected_cakes")
-            parent.appendChild(selected)
-        }
-    </script>
+<h3>Add cakes to order</h3>
+<button hx-get="edit_cakes" hx-swap="innerHTML" hx-target="closest div">edit</button>
+<div id="cakes">
+    {{range $key, $value := .}}
+    <button onclick="addCake('{{$value.ID}}', '{{$value.Name}} ({{$value.Price}})')" type="button">{{$value.Name}}
+        {{$value.Price}}</button>
+    {{end}}
 </div>
+<script>
+    function addCake(id, name) {
+        const existing = document.getElementById("cake[" + id + "]")
+        if (existing != null) {
+            existing.value++
+            return
+        }
+
+        const label = document.createElement('label')
+        label.innerText = name
+        label.setAttribute("for", "cake[" + id + "]")
+
+        const input = document.createElement('input')
+        input.setAttribute("type", "number")
+        input.setAttribute("id", "cake[" + id + "]")
+        input.setAttribute("name", "cake[" + id + "]")
+        input.setAttribute("value", 1)
+
+        const selected = document.createElement('div')
+        selected.appendChild(label)
+        selected.appendChild(input)
+
+        const deleteButton = document.createElement('button')
+        deleteButton.setAttribute("type", "button")
+        deleteButton.innerText = "delete"
+        deleteButton.addEventListener("click", function () {
+            selected.remove()
+        })
+
+        selected.appendChild(deleteButton)
+
+        const parent = document.getElementById("basket")
+        parent.appendChild(selected)
+    }
+</script>

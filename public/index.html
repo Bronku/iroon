@@ -6,6 +6,7 @@
     <title>IROON</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <script src="htmx-2.04.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -13,44 +14,7 @@
         <h1>I ran out of names</h1>
     </header>
     <main>
-        <div id="new_order_form">
-            <form x-show="open" hx-post="order/new" hx-swap="innerHTML" hx-target="#new_order_response"
-                id="new_cake_form">
-                <div>
-                    <label for="firstname">First Name</label>
-                    <input type="text" id="firstname" name="firstname" required value="">
-                </div>
-                <div>
-                    <label for="lastname">Last Name</label>
-                    <input type="text" id="lastname" name="lastname" value="">
-                </div>
-                <div>
-                    <label for="phone">Phone</label>
-                    <input type="tel" id="phone" name="phone" value="">
-                </div>
-                <div>
-                    <label for="location">Location</label>
-                    <input type="text" id="location" name="location" value="">
-                </div>
-                <div>
-                    <label for="paid">Paid</label>
-                    <input type="number" id="paid" name="paid" step="0.01" min="0" value="">
-                </div>
-                <div id="selected_cakes"></div>
-                <button id="submit_button" type="submit">Submit</button>
-                <button id="reset_button" type="reset">Reset</button>
-                <script>
-                    document.getElementById("reset_button").addEventListener("click", function () {
-                        document.getElementById("selected_cakes").innerHTML = "";
-                    })
-                </script>
-            </form>
-            <!--A dropdown with all available cakes loaded dynamically-->
-            <div hx-get="available_cakes" hx-swap="outerHTML" hx-trigger="load">
-            </div>
-            <!--A space to fit the response after submitting the form-->
-            <div id="new_order_response"></div>
-        </div>
+        <div hx-get="new_order_form.html" hx-swap="outerHTML" hx-trigger="load"></div>
     </main>
 </body>
 

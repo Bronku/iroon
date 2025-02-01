@@ -1,0 +1,10 @@
+#new_order_form {
+    display: flex;
+    flex-direction: row;
+    padding: 10pt
+}
+
+#new_order_form>div {
+    padding: 10pt;
+    width: 400px;
+}

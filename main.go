@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"os"
 
 	"net/http"
 
@@ -18,7 +19,8 @@ var templates embed.FS
 func main() {
 	var c controller
 	c.tmpl = LoadTemplates(templates)
-	c.LoadRouter(public)
+	publicfs := os.DirFS("public")
+	c.LoadRouter(publicfs)
 	c.cakes = make(map[int]Cake)
 	c.cakes[0] = Cake{"Sernik", 120, 0}
 	c.cakes[1] = Cake{"Malinowa chmórka", 120, 1}

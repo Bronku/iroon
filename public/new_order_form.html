@@ -1,0 +1,31 @@
+<form x-show="open" hx-post="order/new" hx-swap="outerHTML" id="new_order_form">
+    <div id="main_form">
+        <h3>New Order</h3>
+        <div>
+            <label for="firstname">First Name</label>
+            <input type="text" id="firstname" name="firstname" required value="">
+        </div>
+        <div>
+            <label for="lastname">Last Name</label>
+            <input type="text" id="lastname" name="lastname" value="">
+        </div>
+        <div>
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" value="">
+        </div>
+        <div>
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="">
+        </div>
+        <div>
+            <label for="paid">Paid</label>
+            <input type="number" id="paid" name="paid" step="0.01" min="0" value="">
+        </div>
+        <button id="submit_button" type="submit">Submit</button>
+        <button onclick="document.getElementById('basket').innerHTML=''" type="reset">Reset</button>
+    </div>
+    <div id="basket">
+        <h3>Baset</h3>
+    </div>
+    <div hx-get="available_cakes" hx-swap="innerHTML" hx-trigger="load"></div>
+</form>

@@ -21,7 +21,9 @@ type controller struct {
 func (c *controller) LoadRouter(pub fs.FS) {
 	serveMux := http.NewServeMux()
 
-	serveMux.Handle("GET /", http.FileServerFS(unwrap(fs.Sub(pub, "public"))))
+	//temporary, change in prod
+	//serveMux.Handle("GET /", http.FileServerFS(unwrap(fs.Sub(pub, "public"))))
+	serveMux.Handle("GET /", http.FileServerFS(pub))
 	serveMux.HandleFunc("POST /order/new", c.postNewOrder)
 	serveMux.HandleFunc("GET /available_cakes", c.cakeOptions)
 	serveMux.HandleFunc("GET /edit_cakes", c.cakeOptions)

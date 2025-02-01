@@ -1,7 +1,4 @@
-<button id="close_button">Close</button>
-{{.Status}}
-<script>
-    document.getElementById("close_button").addEventListener("click", function () {
-        document.getElementById("new_order_response").innerHTML = ""
-    })
-</script>
+<div>
+    <h3>{{.Status}}</h3>
+    <button hx-get="new_order_form.html" hx-swap="outerHTML" hx-target="closest div">Close</button>
+</div>
