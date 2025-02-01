@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func unwrap[T any](output T, err error) T {
+func _[T any](output T, err error) T {
 	if err != nil {
 		panic(err)
 	}

@@ -60,7 +60,7 @@ func (c *controller) newCake(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.cakes[in.ID] = in
-	_ = c.tmpl["cake"].Execute(w, in)
+	_ = c.tmpl["new_cake"].Execute(w, in)
 }
 
 func (c *controller) postNewOrder(w http.ResponseWriter, r *http.Request) {

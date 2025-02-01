@@ -1,3 +1,4 @@
+<h3>Edit cakes</h3>
 <form hx-post="new_cake" hx-swap="outerHTML">
     <div>
         <label for="name">Name</label>
@@ -9,5 +10,5 @@
     </div>
     <input value="{{.ID}}" name="id" hidden></input>
     <button type="submit">Submit</button>
-    <button type="button" onclick="document.getElementById('cake_editor').innerText=''">Cancel</button>
+    <button hx-get="edit_cakes" hx-swap="innerHTML" hx-target="closest div">back</button>
 </form>
