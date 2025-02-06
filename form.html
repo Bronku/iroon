@@ -1,0 +1,29 @@
+<header>
+    <h1>New Order</h1>
+</header>
+<nav>
+    <a href="/">back</a>
+</nav>
+<main>
+    <form method="post">
+        <div>
+            <h2>Info</h2>
+            <label>name</label>
+            <input type="text" name="name" value="{{.Name}}">
+            <label>surname</label>
+            <input type="text" name="surname" value="{{.Surname}}">
+            <label>phone</label>
+            <input type="tel" name="phone" value="{{.Phone}}">
+            <label>date</label>
+            <input type="date" name="date" value="{{.Date}}">
+        </div>
+        <div>
+            <h2>Basket</h2>
+            {{range .Cakes}}
+                <label>{{.Name}} {{.Price}}</label>
+                <input type="number" min="0" name="cake[{{.ID}}]" value="{{.Amount}}">
+            {{end}}
+        </div>
+        <button type="submit">submit</button>
+    </form> 
+</main>
