@@ -28,13 +28,7 @@
         </div>
         <div>
             <h2>Basket</h2>
-            <ul>
-                {{range .Cakes}}
-                <li>
-                    <label>{{.Name}} {{.Price}}</label>
-                    <input id="cake[{{.ID}}]" type="number" min="0" name="cake[{{.ID}}]" value="{{.Amount}}">
-                </li>
-                {{end}}
+            <ul id="basket">
             </ul>
         </div>
         {{end}}
@@ -44,7 +38,7 @@
             <ul>
                 {{range .}}
                 <li>
-                    {{.Name}} {{.Price}} <button type=button onClick="addCake({{.ID}})">add</button>
+                    {{.Name}} {{.Price}} <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">add</button>
                 </li>
                 {{end}}
             </ul>
@@ -53,13 +47,40 @@
         <button type="submit">submit</button>
     </form> 
 </main>
-
 <script>
-    function addCake(id){
+    function addCake(id, name, amount){
         var cake = document.getElementById("cake["+id+"]")
         if (cake != null){
+            var value = Number(cake.getAttribute("value"))
+            cake.setAttribute("value", value+1)
             return;
         }
-        console.log(cake)
+        var label = document.createElement("label")
+        label.innerText = name
+        var input = document.createElement("input")
+        input.setAttribute("id","cake["+id+"]")
+        input.setAttribute("type", "number")
+        input.setAttribute("min", "0")
+        input.setAttribute("name", "cake["+id+"]")
+        input.setAttribute("value", amount)
+        var button = document.createElement("button")
+        button.setAttribute("type", "button")
+        button.setAttribute("onClick", "removeCake("+id+")")
+        button.innerText= "delete"
+        var li = document.createElement("li")
+        li.appendChild(label)
+        li.appendChild(input)
+        li.appendChild(button)
+        li.setAttribute("id", "li["+id+"]")
+        var ul = document.getElementById("basket")
+        ul.appendChild(li)
     }
+
+    function removeCake(id){
+        document.getElementById("li["+id+"]").remove()
+    }
+
+    {{range .Order.Cakes}}
+        addCake({{.ID}}, '{{.Name}} {{.Price}}', {{.Amount}})
+    {{end}}
 </script>
