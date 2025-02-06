@@ -8,6 +8,7 @@
     <form method="post">
         <div>
             <h2>Info</h2>
+            <input hidden="true" name="id" value="{{.ID}}">
             <label>name</label>
             <input type="text" name="name" value="{{.Name}}">
             <label>surname</label>
@@ -20,7 +21,9 @@
                 <option value="Somonino">Somonino</option>
             </select>
             <label>date</label>
-            <input type="date" name="date" value="{{.Date}}">
+            <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
+            <label>paid</label>
+            <input type="number" name="paid" min="0" value="{{.Paid}}">
         </div>
         <div>
             <h2>Basket</h2>

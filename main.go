@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -36,12 +37,9 @@ type handler struct {
 
 func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 	data := order{
-		Name:     "",
-		Surname:  "",
-		Phone:    "",
-		Location: "",
-		Date:     time.Now(),
-		Cakes:    h.cakes,
+		ID:    -1,
+		Date:  time.Now(),
+		Cakes: h.cakes,
 	}
 	w.Header().Set("content-type", "text/html")
 	err := h.tmpl.ExecuteTemplate(w, "form.html", data)
@@ -58,6 +56,36 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("received form: ", r.Form)
+
+	var n order
+	n.ID, err = strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println("can't parse order id: ", err)
+		return
+	}
+	n.Name = r.FormValue("name")
+	n.Surname = r.FormValue("surname")
+	n.Phone = r.FormValue("phone")
+	n.Location = r.FormValue("location")
+	n.Date, err = time.Parse("2006-01-02", r.FormValue("date"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println("can't parse order date: ", err)
+		return
+	}
+	n.Paid, err = strconv.Atoi(r.FormValue("paid"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println("can't parse order paid: ", err)
+		return
+	}
+	n.Cakes = make([]cake, 0)
+
+	h.orders = append(h.orders, n)
+
+	fmt.Println("parsed order: ", n)
+
 	w.Header().Set("content-type", "text/html")
 	w.WriteHeader(http.StatusAccepted)
 	w.Write([]byte("accepted <a href='/'>back</a>"))
