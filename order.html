@@ -6,6 +6,7 @@
 </nav>
 <main>
     <form method="post">
+        {{with .Order}}
         <div>
             <h2>Info</h2>
             <input hidden="true" name="id" value="{{.ID}}">
@@ -27,11 +28,38 @@
         </div>
         <div>
             <h2>Basket</h2>
-            {{range .Cakes}}
-                <label>{{.Name}} {{.Price}}</label>
-                <input type="number" min="0" name="cake[{{.ID}}]" value="{{.Amount}}">
-            {{end}}
+            <ul>
+                {{range .Cakes}}
+                <li>
+                    <label>{{.Name}} {{.Price}}</label>
+                    <input id="cake[{{.ID}}]" type="number" min="0" name="cake[{{.ID}}]" value="{{.Amount}}">
+                </li>
+                {{end}}
+            </ul>
         </div>
+        {{end}}
+        {{with .Catalogue}}
+        <div>
+            <h2>Catalogue</h2>
+            <ul>
+                {{range .}}
+                <li>
+                    {{.Name}} {{.Price}} <button type=button onClick="addCake({{.ID}})">add</button>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+        {{end}}
         <button type="submit">submit</button>
     </form> 
 </main>
+
+<script>
+    function addCake(id){
+        var cake = document.getElementById("cake["+id+"]")
+        if (cake != null){
+            return;
+        }
+        console.log(cake)
+    }
+</script>

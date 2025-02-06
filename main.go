@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -36,13 +37,23 @@ type handler struct {
 }
 
 func (h *handler) form(w http.ResponseWriter, r *http.Request) {
-	data := order{
-		ID:    -1,
-		Date:  time.Now(),
-		Cakes: h.cakes,
+	url := strings.Split(r.URL.String(), "/")
+	o := order{
+		ID:   -1,
+		Date: time.Now(),
 	}
+	id, err := strconv.Atoi(url[2])
+	if err == nil {
+		o = h.orders[id]
+	}
+	type formData struct {
+		Order     order
+		Catalogue []cake
+	}
+	data := formData{o, h.cakes}
+
 	w.Header().Set("content-type", "text/html")
-	err := h.tmpl.ExecuteTemplate(w, "form.html", data)
+	err = h.tmpl.ExecuteTemplate(w, "order.html", data)
 	if err != nil {
 		fmt.Println("error executing the template: ", err)
 	}
@@ -111,7 +122,7 @@ func logger(in http.HandlerFunc) http.HandlerFunc {
 
 func main() {
 	var h handler
-	templates, err := template.ParseFiles("index.html", "form.html")
+	templates, err := template.ParseFiles("index.html", "order.html")
 	if err != nil {
 		log.Fatal("can't parse templates: ", err)
 	}
@@ -129,7 +140,7 @@ func main() {
 	cakes = append(cakes, cake{"Malinowa chmurka", 1, 120, 0})
 	h.cakes = cakes
 
-	http.HandleFunc("GET /form", logger(h.form))
+	http.HandleFunc("GET /order/", logger(h.form))
 	http.HandleFunc("GET /", logger(h.index))
 	http.HandleFunc("POST /", logger(h.addOrder))
 	http.ListenAndServe(":8080", nil)

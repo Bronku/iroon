@@ -2,13 +2,13 @@
     <h1>Kill me please</h1>
 </header>
 <nav>
-    <a href="form">New</a>
+    <a href="order">New</a>
 </nav>
 <main>
     <ul>
         {{range .}}
         <li id="order[{{.ID}}]">
-            {{.Name}} {{.Surname}}
+            <a href="/order/{{.ID}}">{{.Name}} {{.Surname}}</a>
         </li>
         {{end}}
     </ul>
