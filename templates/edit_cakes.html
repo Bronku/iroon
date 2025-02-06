@@ -1,9 +1,0 @@
-<h3>Edit cakes</h3>
-<button hx-get="available_cakes" hx-swap="innerHTML" hx-target="closest div">back</button>
-<button hx-get="cake_editor" hx-swap="innerHTML" hx-target="closest #cake_selector">New</button>
-<div id="cakes">
-    {{range $key, $value := .}}
-    <button hx-get="cake_editor/{{$value.ID}}" hx-swap="innerHTML" hx-target="closest #cake_selector">{{$value.Name}}
-        {{$value.Price}}</button>
-    {{end}}
-</div>
