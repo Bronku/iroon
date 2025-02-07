@@ -16,6 +16,7 @@ type order struct {
 	Phone    string
 	Location string
 	Date     time.Time
+	Accepted time.Time
 	Paid     int // increments of 0.01
 	Cakes    []cake
 }

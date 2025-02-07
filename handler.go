@@ -57,27 +57,48 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("can't parse order id: ", err)
 		return
 	}
-	n.Name = r.FormValue("name")
-	n.Surname = r.FormValue("surname")
-	n.Phone = r.FormValue("phone")
-	n.Location = r.FormValue("location")
+
+	n.Name = strings.TrimSpace(r.FormValue("name"))
+
+	n.Surname = strings.TrimSpace(r.FormValue("surname"))
+
+	n.Phone = strings.TrimSpace(r.FormValue("phone"))
+
+	n.Location = strings.TrimSpace(r.FormValue("location"))
+
 	n.Date, err = time.Parse("2006-01-02", r.FormValue("date"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Println("can't parse order date: ", err)
 		return
 	}
+
 	n.Paid, err = strconv.Atoi(r.FormValue("paid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Println("can't parse order paid: ", err)
 		return
 	}
-	n.Cakes = make([]cake, 0)
 
-	h.s.saveOrder(n)
+	n.Accepted = time.Now()
+
+	n.Cakes = make([]cake, 0)
+	for _, e := range h.s.getCakes() {
+		value := r.FormValue(fmt.Sprintf("cake[%d]", e.ID))
+		if value == "" {
+			continue
+		}
+		amount, err := strconv.Atoi(value)
+		e.Amount = amount
+		if err != nil {
+			continue
+		}
+		n.Cakes = append(n.Cakes, e)
+	}
 
 	fmt.Println("parsed order: ", n)
+
+	h.s.saveOrder(n)
 
 	w.Header().Set("content-type", "text/html")
 	w.WriteHeader(http.StatusAccepted)

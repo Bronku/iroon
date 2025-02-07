@@ -18,12 +18,15 @@ func main() {
 	h.tmpl = templates
 	h.s = NewStore()
 
-	h.s.saveCake(cake{"Sernik", -1, 120, 0})
-	h.s.saveCake(cake{"Malinowa chmurka", -1, 120, 0})
+	h.s.saveCake(cake{"Sernik ulubiony", -1, 65, 0})
+	h.s.saveCake(cake{"Malinowa chmurka", -1, 150, 0})
+	h.s.saveCake(cake{"Mako sernik", -1, 150, 0})
+	h.s.saveCake(cake{"Rolada makowa", -1, 80, 0})
+	h.s.saveCake(cake{"Wieniec bezowy", -1, 120, 0})
 
-	h.s.saveOrder(order{-1, "Albert", "Camus", "123456789", "Kartuzy", time.Now().AddDate(0, 0, 7), 0, nil})
-	h.s.saveOrder(order{-1, "George", "Orwell", "", "Kartuzy", time.Now().AddDate(0, 1, 0), 0, nil})
-	h.s.saveOrder(order{-1, "Karl", "Marx", "0700", "Somonino", time.Now(), 0, nil})
+	h.s.saveOrder(order{-1, "Albert", "Camus", "123456789", "Kartuzy", time.Now().AddDate(0, 0, 7), time.Now(), 0, nil})
+	h.s.saveOrder(order{-1, "George", "Orwell", "", "Kartuzy", time.Now().AddDate(0, 1, 0), time.Now(), 0, nil})
+	h.s.saveOrder(order{-1, "Karl", "Marx", "0700", "Somonino", time.Now(), time.Now(), 0, nil})
 
 	http.HandleFunc("GET /order/", logger(h.form))
 	http.HandleFunc("GET /", logger(h.index))

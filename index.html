@@ -5,11 +5,35 @@
     <a href="order">New</a>
 </nav>
 <main>
-    <ul>
+    <table>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Phone</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Accepted</th>
+            <th>Paid</th>
+            <th>Cakes</th>
+        </tr>
         {{range .}}
-        <li id="order[{{.ID}}]">
-            <a href="/order/{{.ID}}">{{.Name}} {{.Surname}}</a>
-        </li>
+        <tr>
+            <th><a href="/order/{{.ID}}">edit</a></th>
+            <th>{{.Name}}</th>
+            <th>{{.Surname}}</th>
+            <th>{{.Phone}}</th>
+            <th>{{.Location}}</th>
+            <th>{{.Date.Format "2006-01-02"}}</th>
+            <th>{{.Accepted.Format "2006-01-02"}}</th>
+            <th>{{.Paid}}</th>
+            <th>
+                {{range .Cakes}}
+                    {{.Name}}
+                    {{.Amount}}
+                {{end}}
+            </th>
+        </tr>
         {{end}}
-    </ul>
+    </table>
 </main>
