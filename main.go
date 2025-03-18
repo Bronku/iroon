@@ -24,9 +24,9 @@ func main() {
 	h.s.saveCake(cake{"Rolada makowa", -1, 80, 0})
 	h.s.saveCake(cake{"Wieniec bezowy", -1, 120, 0})
 
-	h.s.saveOrder(order{-1, "Albert", "Camus", "123456789", "Kartuzy", time.Now().AddDate(0, 0, 7), time.Now(), 0, nil})
-	h.s.saveOrder(order{-1, "George", "Orwell", "", "Kartuzy", time.Now().AddDate(0, 1, 0), time.Now(), 0, nil})
-	h.s.saveOrder(order{-1, "Karl", "Marx", "0700", "Somonino", time.Now(), time.Now(), 0, nil})
+	h.s.saveOrder(order{-1, "Albert", "Camus", "123456789", "Kartuzy", time.Now().AddDate(0, 0, 7), time.Now(), "accepted", 0, nil})
+	h.s.saveOrder(order{-1, "George", "Orwell", "", "Kartuzy", time.Now().AddDate(0, 1, 0), time.Now(), "accepted", 0, nil})
+	h.s.saveOrder(order{-1, "Karl", "Marx", "0700", "Somonino", time.Now(), time.Now(), "accepted", 0, nil})
 
 	http.HandleFunc("GET /order/", logger(h.form))
 	http.HandleFunc("GET /", logger(h.index))

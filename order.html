@@ -23,6 +23,11 @@
             </select>
             <label>date</label>
             <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
+            <label>status</label>
+            <select name="status" id="status">
+                <option value="accepted">accepted</option>
+                <option value="done">done</option>
+            </select>
             <label>paid</label>
             <input type="number" name="paid" min="0" value="{{.Paid}}">
         </div>
@@ -45,7 +50,7 @@
         </div>
         {{end}}
         <button type="submit">submit</button>
-    </form> 
+    </form>
 </main>
 <script>
     function addCake(id, name, amount){

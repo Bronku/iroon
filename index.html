@@ -14,6 +14,7 @@
             <th>Location</th>
             <th>Date</th>
             <th>Accepted</th>
+            <th>Status</th>
             <th>Paid</th>
             <th>Cakes</th>
         </tr>
@@ -26,13 +27,9 @@
             <th>{{.Location}}</th>
             <th>{{.Date.Format "2006-01-02"}}</th>
             <th>{{.Accepted.Format "2006-01-02"}}</th>
+            <th>{{.Status}}</th>
             <th>{{.Paid}}</th>
-            <th>
-                {{range .Cakes}}
-                    {{.Name}}
-                    {{.Amount}}
-                {{end}}
-            </th>
+            <th>{{range .Cakes}} {{.Name}} {{.Amount}} {{end}}</th>
         </tr>
         {{end}}
     </table>

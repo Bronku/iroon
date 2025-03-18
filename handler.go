@@ -73,6 +73,8 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	n.Status = strings.TrimSpace(r.FormValue("status"))
+
 	n.Paid, err = strconv.Atoi(r.FormValue("paid"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
