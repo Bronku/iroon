@@ -16,7 +16,8 @@ func main() {
 		log.Fatal("can't parse templates: ", err)
 	}
 	h.tmpl = templates
-	h.s = NewStore()
+	// #todo: error handling
+	h.s, _ = NewStore("./foo.db")
 
 	h.s.saveCake(cake{"Sernik ulubiony", -1, 65, 0})
 	h.s.saveCake(cake{"Malinowa chmurka", -1, 150, 0})

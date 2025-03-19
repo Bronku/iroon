@@ -27,3 +27,4 @@ go.work.sum
 
 tmp
 tmp/main
+foo.db

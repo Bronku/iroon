@@ -8,6 +8,7 @@
   - [ ] Create proper schemas
   - [ ] Implement data persistence
   - [ ] Add database migrations
+  - [ ] Add database caching
 
 - [ ] Input Validation
 
@@ -120,6 +121,8 @@
 - [ ] API Documentation
 - [ ] Unit Tests
 - [ ] Integration Tests
+- [ ] File structure
+- [ ] Embed templates
 
 ## Future Considerations
 
