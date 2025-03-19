@@ -1,9 +1,9 @@
+// #todo: check for errors in every rows.Scan()
 package main
 
 import (
 	"database/sql"
 	_ "embed"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -37,25 +37,27 @@ func NewStore(filename string) (*store, error) {
 	return &out, nil
 }
 
-// #todo: should return an error
-func (s *store) getCakes() []cake {
-	// #todo: error handling
+func (s *store) close() {
+	s.db.Close()
+}
+
+func (s *store) getCakes() ([]cake, error) {
 	rows, err := s.db.Query("select id, name, price from cake")
-	defer rows.Close()
 	if err != nil {
-		return nil
+		return nil, err
 	}
+	defer rows.Close()
 	cakes := make([]cake, 0)
 	for rows.Next() {
 		var c cake
-		err = rows.Scan(&c.ID, &c.Name, &c.Price)
 		c.Amount = 0
+		err = rows.Scan(&c.ID, &c.Name, &c.Price)
 		if err != nil {
-			fmt.Println("error scanning rows into cake: ", err)
+			return nil, err
 		}
 		cakes = append(cakes, c)
 	}
-	return cakes
+	return cakes, err
 }
 
 func (s *store) saveCake(newCake cake) (int, error) {
@@ -74,8 +76,8 @@ func (s *store) saveCake(newCake cake) (int, error) {
 
 	// #todo: see if next is required or not to get the first element
 	row.Next()
-	row.Scan(&newCake.ID)
-	return newCake.ID, nil
+	err = row.Scan(&newCake.ID)
+	return newCake.ID, err
 }
 
 // #todo: retrieve and save order contents
@@ -98,26 +100,29 @@ func (s *store) getOrder(id int) (order, error) {
 }
 
 // #todo: should return an error
-func (s *store) getOrders() []order {
+func (s *store) getOrders() ([]order, error) {
 	var out []order
-	// #todo: error handling
-	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
-	defer row.Close()
+	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
 	if err != nil {
-		return out
+		return out, err
 	}
+	defer rows.Close()
 
-	for row.Next() {
+	for rows.Next() {
 		var o order
 		var order_date, delivery_date string
-		row.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
+		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
+		if err != nil {
+			return nil, err
+		}
 		// #todo: error handling
+		// figure out what to do with errors, as they shouldn't really crash the app, but there should probably be an indication that something went wrong
 		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 		out = append(out, o)
 	}
 
-	return out
+	return out, nil
 }
 
 func (s *store) saveOrder(newOrder order) (int, error) {
@@ -139,6 +144,6 @@ func (s *store) saveOrder(newOrder order) (int, error) {
 
 	// #todo: see if next is required or not to get the first element
 	row.Next()
-	row.Scan(&newOrder.ID)
-	return newOrder.ID, nil
+	err = row.Scan(&newOrder.ID)
+	return newOrder.ID, err
 }

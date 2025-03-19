@@ -31,7 +31,13 @@ func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 		Order     order
 		Catalogue []cake
 	}
-	data := formData{o, h.s.getCakes()}
+
+	cakes, err := h.s.getCakes()
+	if err != nil {
+		fmt.Fprint(w, "server side error getting available cakes: ", err)
+		return
+	}
+	data := formData{o, cakes}
 	fmt.Println(data)
 
 	w.Header().Set("content-type", "text/html")
@@ -85,7 +91,12 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 	n.Accepted = time.Now()
 
 	n.Cakes = make([]cake, 0)
-	for _, e := range h.s.getCakes() {
+	cakes, err := h.s.getCakes()
+	if err != nil {
+		fmt.Fprint(w, "server side error getting available cakes: ", err)
+		return
+	}
+	for _, e := range cakes {
 		value := r.FormValue(fmt.Sprintf("cake[%d]", e.ID))
 		if value == "" {
 			continue
@@ -109,7 +120,12 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
-	err := h.tmpl.ExecuteTemplate(w, "index.html", h.s.getOrders())
+	orders, err := h.s.getOrders()
+	if err != nil {
+		fmt.Fprint(w, "server side error getting orders: ", err)
+		return
+	}
+	err = h.tmpl.ExecuteTemplate(w, "index.html", orders)
 	if err != nil {
 		fmt.Println("error executing the template: ", err)
 	}
