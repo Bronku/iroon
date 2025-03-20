@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	_ "embed"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -221,6 +220,5 @@ func (s *store) saveOrder(newOrder order) (int, error) {
 	}
 
 	err = tx.Commit()
-	fmt.Println(err)
 	return newOrder.ID, err
 }
