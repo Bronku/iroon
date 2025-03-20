@@ -4,9 +4,9 @@
 
 - [ ] Database Implementation
 
-  - [ ] Set up SQLite database
-  - [ ] Create proper schemas
-  - [ ] Implement data persistence
+  - [x] Set up SQLite database
+  - [x] Create proper schemas
+  - [x] Implement data persistence
   - [ ] Add database migrations
   - [ ] Add database caching
 
