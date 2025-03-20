@@ -4,6 +4,7 @@ package main
 import (
 	"database/sql"
 	_ "embed"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -83,10 +84,14 @@ func (s *store) saveCake(newCake cake) (int, error) {
 // #todo: retrieve and save order contents
 func (s *store) getOrder(id int) (order, error) {
 	var out order
-	// #todo: error handling
-	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
+	tx, err := s.db.Begin()
+	if err != nil {
+		return out, nil
+	}
+	row, err := tx.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
 	defer row.Close()
 	if err != nil {
+		tx.Rollback()
 		return out, err
 	}
 
@@ -96,14 +101,37 @@ func (s *store) getOrder(id int) (order, error) {
 	// #todo: error handling
 	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
+
+	out.Cakes = make([]cake, 0)
+	rows, err := tx.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
+	if err != nil {
+		tx.Rollback()
+		return out, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var newCake cake
+		err = rows.Scan(&newCake.ID, &newCake.Amount)
+		if err != nil {
+			tx.Rollback()
+			return out, err
+		}
+		out.Cakes = append(out.Cakes, newCake)
+	}
+
+	tx.Commit()
 	return out, nil
 }
 
-// #todo: should return an error
 func (s *store) getOrders() ([]order, error) {
 	var out []order
-	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
+	tx, err := s.db.Begin()
 	if err != nil {
+		return nil, err
+	}
+	rows, err := tx.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
+	if err != nil {
+		tx.Rollback()
 		return out, err
 	}
 	defer rows.Close()
@@ -113,15 +141,34 @@ func (s *store) getOrders() ([]order, error) {
 		var order_date, delivery_date string
 		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
-		// #todo: error handling
-		// figure out what to do with errors, as they shouldn't really crash the app, but there should probably be an indication that something went wrong
 		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
+
+		o.Cakes = make([]cake, 0)
+		rows, err := tx.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
+
+		if err != nil {
+			tx.Rollback()
+			return out, err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var newCake cake
+			err = rows.Scan(&newCake.ID, &newCake.Amount)
+			if err != nil {
+				tx.Rollback()
+				return out, err
+			}
+			o.Cakes = append(o.Cakes, newCake)
+		}
+
 		out = append(out, o)
 	}
 
+	tx.Commit()
 	return out, nil
 }
 
@@ -131,19 +178,70 @@ func (s *store) saveOrder(newOrder order) (int, error) {
 		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "
 		query += strconv.Itoa(newOrder.ID) + " returning id;"
 	}
+	tx, err := s.db.Begin()
+	if err != nil {
+		return -1, nil
+	}
 
-	// #todo: error handling
-	// #todo: date format
 	accepted := newOrder.Accepted.Format("2006-01-02 15:04")
 	date := newOrder.Date.Format("2006-01-02 15:04")
-	row, err := s.db.Query(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid)
+	row, err := tx.Query(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid)
 	if err != nil {
+		tx.Rollback()
 		return -1, err
 	}
 	defer row.Close()
 
-	// #todo: see if next is required or not to get the first element
 	row.Next()
 	err = row.Scan(&newOrder.ID)
+	if err != nil {
+		tx.Rollback()
+		return newOrder.ID, err
+	}
+
+	// remove all ordered_cakes associated with this order before inserting
+	query = "delete from ordered_cake where customer_order = ?;"
+	_, err = tx.Exec(query, newOrder.ID)
+	if err != nil {
+		tx.Rollback()
+		return newOrder.ID, err
+	}
+
+	// add all ordered_cakes for this order
+	query = "insert into ordered_cake(customer_order, cake, amount) values (?,?,?);"
+	for _, e := range newOrder.Cakes {
+		_, err := tx.Exec(query, newOrder.ID, e.ID, e.Amount)
+		if err != nil {
+			tx.Rollback()
+			return newOrder.ID, err
+		}
+	}
+
+	err = tx.Commit()
+
 	return newOrder.ID, err
+
+}
+
+func listTables(db *sql.DB) error {
+	rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table';")
+	if err != nil {
+		return fmt.Errorf("error querying sqlite_master: %w", err)
+	}
+	defer rows.Close()
+
+	fmt.Println("Tables in the database:")
+	for rows.Next() {
+		var tableName string
+		if err := rows.Scan(&tableName); err != nil {
+			return fmt.Errorf("error scanning table name: %w", err)
+		}
+		fmt.Println("-", tableName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error iterating through rows: %w", err)
+	}
+
+	return nil
 }

@@ -21,4 +21,4 @@ create table ordered_cake (
     cake integer references cake (id) not null,
     amount integer not null,
     primary key (customer_order, cake)
-)
+);

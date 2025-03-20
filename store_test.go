@@ -189,6 +189,9 @@ func TestStore(t *testing.T) {
 		newOrder.Date.Format("2006-01-02 15:04") != newOrder.Date.Format("2006-01-02 15:04") {
 		t.Errorf("Want %v\nGot  %v", newOrder, orders[newOrderPos])
 	}
+	if !areCakeSlicesEqual(newOrder.Cakes, orders[newOrderPos].Cakes) {
+		t.Errorf("Want %v\nGot  %v", newOrder.Cakes, orders[newOrderPos].Cakes)
+	}
 
 	if anotherOrderPos == -1 {
 		t.Error("not found anotherOrder")
@@ -201,6 +204,28 @@ func TestStore(t *testing.T) {
 		anotherOrder.Accepted.Format("2006-01-02 15:04") != anotherOrder.Accepted.Format("2006-01-02 15:04") ||
 		anotherOrder.Date.Format("2006-01-02 15:04") != anotherOrder.Date.Format("2006-01-02 15:04") {
 		t.Errorf("Want %v\nGot  %v", anotherOrder, orders[anotherOrderPos])
+	}
+
+	if !areCakeSlicesEqual(anotherOrder.Cakes, orders[anotherOrderPos].Cakes) {
+		t.Errorf("Want %v\nGot  %v", anotherOrder.Cakes, orders[anotherOrderPos].Cakes)
+	}
+
+	selectedOrder, err := s.getOrder(newOrder.ID)
+	if err != nil {
+		t.Error("error getting an order by id ", err)
+	}
+	if newOrder.Name != selectedOrder.Name ||
+		newOrder.Surname != selectedOrder.Surname ||
+		newOrder.Phone != selectedOrder.Phone ||
+		newOrder.Status != selectedOrder.Status ||
+		newOrder.Location != selectedOrder.Location ||
+		newOrder.Accepted.Format("2006-01-02 15:04") != newOrder.Accepted.Format("2006-01-02 15:04") ||
+		newOrder.Date.Format("2006-01-02 15:04") != newOrder.Date.Format("2006-01-02 15:04") {
+		t.Errorf("Want %v\nGot  %v", newOrder, selectedOrder)
+	}
+
+	if !areCakeSlicesEqual(newOrder.Cakes, selectedOrder.Cakes) {
+		t.Errorf("Want %v\nGot  %v", newOrder.Cakes, selectedOrder.Cakes)
 	}
 }
 
