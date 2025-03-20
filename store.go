@@ -4,7 +4,6 @@ package main
 import (
 	"database/sql"
 	_ "embed"
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -21,7 +20,7 @@ type store struct {
 func NewStore(filename string) (*store, error) {
 	var out store
 	var err error
-	if filename != ":memory:" {
+	if filename != ":memory:" && filename != "file:memdb1?mode=memory&cache=shared" {
 		os.Remove(filename)
 	}
 	// #todo: handle the error
@@ -40,6 +39,17 @@ func NewStore(filename string) (*store, error) {
 
 func (s *store) close() {
 	s.db.Close()
+}
+
+func (s *store) getCake(id int) (cake, error) {
+	out := cake{ID: id}
+	row, err := s.db.Query("select name, price from cake where id = ?;", id)
+	if err != nil {
+		return out, err
+	}
+	row.Next()
+	err = row.Scan(&out.Name, &out.Price)
+	return out, err
 }
 
 func (s *store) getCakes() ([]cake, error) {
@@ -221,27 +231,4 @@ func (s *store) saveOrder(newOrder order) (int, error) {
 
 	return newOrder.ID, err
 
-}
-
-func listTables(db *sql.DB) error {
-	rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table';")
-	if err != nil {
-		return fmt.Errorf("error querying sqlite_master: %w", err)
-	}
-	defer rows.Close()
-
-	fmt.Println("Tables in the database:")
-	for rows.Next() {
-		var tableName string
-		if err := rows.Scan(&tableName); err != nil {
-			return fmt.Errorf("error scanning table name: %w", err)
-		}
-		fmt.Println("-", tableName)
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error iterating through rows: %w", err)
-	}
-
-	return nil
 }

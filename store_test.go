@@ -6,7 +6,7 @@ import (
 )
 
 func TestStore(t *testing.T) {
-	s, err := NewStore(":memory:")
+	s, err := NewStore("file:memdb1?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatalf("Failed to create store: %v", err)
 	}
@@ -94,6 +94,19 @@ func TestStore(t *testing.T) {
 	}
 	if cakes[anotherCake.Amount].ID != anotherCake.ID || cakes[anotherCake.Amount].Name != anotherCake.Name || cakes[anotherCake.Amount].Price != anotherCake.Price {
 		t.Errorf("Want %v\nGot  %v", anotherCake, cakes)
+	}
+
+	selectedCake, err := s.getCake(newCake.ID)
+	if err != nil {
+		t.Error("error getting a cake", err)
+	}
+	if selectedCake.ID != newCake.ID || selectedCake.Name != newCake.Name || selectedCake.Price != newCake.Price {
+		t.Errorf("Want %v\nGot  %v", newCake, selectedCake)
+	}
+
+	selectedCake, err = s.getCake(-1)
+	if err == nil {
+		t.Error("no error getting a non-existant cake")
 	}
 
 	// create new order
