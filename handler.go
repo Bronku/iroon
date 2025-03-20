@@ -38,7 +38,7 @@ func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := formData{o, cakes}
-	fmt.Println(data)
+	//fmt.Println(data)
 
 	w.Header().Set("content-type", "text/html")
 	err = h.tmpl.ExecuteTemplate(w, "order.html", data)

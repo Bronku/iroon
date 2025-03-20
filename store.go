@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	_ "embed"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -44,6 +45,7 @@ func (s *store) getCake(id int) (cake, error) {
 	if err != nil {
 		return out, err
 	}
+	defer row.Close()
 	row.Next()
 	err = row.Scan(&out.Name, &out.Price)
 	return out, err
@@ -88,14 +90,9 @@ func (s *store) saveCake(newCake cake) (int, error) {
 
 func (s *store) getOrder(id int) (order, error) {
 	var out order
-	tx, err := s.db.Begin()
-	if err != nil {
-		return out, nil
-	}
-	row, err := tx.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
+	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
 	defer row.Close()
 	if err != nil {
-		tx.Rollback()
 		return out, err
 	}
 
@@ -103,16 +100,14 @@ func (s *store) getOrder(id int) (order, error) {
 	row.Next()
 	err = row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
 	if err != nil {
-		tx.Rollback()
 		return out, err
 	}
 	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
 	out.Cakes = make([]cake, 0)
-	rows, err := tx.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
+	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
 	if err != nil {
-		tx.Rollback()
 		return out, err
 	}
 	defer rows.Close()
@@ -120,25 +115,24 @@ func (s *store) getOrder(id int) (order, error) {
 		var newCake cake
 		err = rows.Scan(&newCake.ID, &newCake.Amount)
 		if err != nil {
-			tx.Rollback()
 			return out, err
 		}
+		cakeData, err := s.getCake(newCake.ID)
+		if err != nil {
+			continue
+		}
+		newCake.Name = cakeData.Name
+		newCake.Price = cakeData.Price
 		out.Cakes = append(out.Cakes, newCake)
 	}
 
-	tx.Commit()
 	return out, nil
 }
 
 func (s *store) getOrders() ([]order, error) {
 	var out []order
-	tx, err := s.db.Begin()
+	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
 	if err != nil {
-		return nil, err
-	}
-	rows, err := tx.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
-	if err != nil {
-		tx.Rollback()
 		return out, err
 	}
 	defer rows.Close()
@@ -148,17 +142,15 @@ func (s *store) getOrders() ([]order, error) {
 		var order_date, delivery_date string
 		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
 		if err != nil {
-			tx.Rollback()
 			return nil, err
 		}
 		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
 		o.Cakes = make([]cake, 0)
-		rows, err := tx.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
+		rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
 
 		if err != nil {
-			tx.Rollback()
 			return out, err
 		}
 		defer rows.Close()
@@ -166,16 +158,20 @@ func (s *store) getOrders() ([]order, error) {
 			var newCake cake
 			err = rows.Scan(&newCake.ID, &newCake.Amount)
 			if err != nil {
-				tx.Rollback()
 				return out, err
 			}
+			cakeData, err := s.getCake(newCake.ID)
+			if err != nil {
+				continue
+			}
+			newCake.Name = cakeData.Name
+			newCake.Price = cakeData.Price
 			o.Cakes = append(o.Cakes, newCake)
 		}
 
 		out = append(out, o)
 	}
 
-	tx.Commit()
 	return out, nil
 }
 
@@ -225,7 +221,6 @@ func (s *store) saveOrder(newOrder order) (int, error) {
 	}
 
 	err = tx.Commit()
-
+	fmt.Println(err)
 	return newOrder.ID, err
-
 }
