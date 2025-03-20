@@ -240,6 +240,11 @@ func TestStore(t *testing.T) {
 	if !areCakeSlicesEqual(newOrder.Cakes, selectedOrder.Cakes) {
 		t.Errorf("Want %v\nGot  %v", newOrder.Cakes, selectedOrder.Cakes)
 	}
+
+	_, err = s.getOrder(-1)
+	if err == nil {
+		t.Error("no error getting invalid order")
+	}
 }
 
 func TestSliceComparison(t *testing.T) {

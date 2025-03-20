@@ -1,4 +1,3 @@
-// #todo: check for errors in every rows.Scan()
 package main
 
 import (
@@ -16,14 +15,12 @@ type store struct {
 	db *sql.DB
 }
 
-// #todo: implement database persistance
 func NewStore(filename string) (*store, error) {
 	var out store
 	var err error
 	if filename != ":memory:" && filename != "file:memdb1?mode=memory&cache=shared" {
 		os.Remove(filename)
 	}
-	// #todo: handle the error
 	out.db, err = sql.Open("sqlite3", filename)
 	if err != nil {
 		return nil, err
@@ -78,20 +75,17 @@ func (s *store) saveCake(newCake cake) (int, error) {
 		query += strconv.Itoa(newCake.ID) + " returning id;"
 	}
 
-	// #todo: error handling
 	row, err := s.db.Query(query, newCake.Name, newCake.Price)
 	if err != nil {
 		return -1, err
 	}
 	defer row.Close()
 
-	// #todo: see if next is required or not to get the first element
 	row.Next()
 	err = row.Scan(&newCake.ID)
 	return newCake.ID, err
 }
 
-// #todo: retrieve and save order contents
 func (s *store) getOrder(id int) (order, error) {
 	var out order
 	tx, err := s.db.Begin()
@@ -107,8 +101,11 @@ func (s *store) getOrder(id int) (order, error) {
 
 	var order_date, delivery_date string
 	row.Next()
-	row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
-	// #todo: error handling
+	err = row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
+	if err != nil {
+		tx.Rollback()
+		return out, err
+	}
 	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
