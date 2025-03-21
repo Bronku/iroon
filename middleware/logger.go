@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func logger(in http.HandlerFunc) http.HandlerFunc {
+func Logger(in http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		//log := fmt.Sprint(r.Method, " ", r.URL.String())

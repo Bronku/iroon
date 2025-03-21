@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Bronku/iroon/auth"
+	"github.com/Bronku/iroon/middleware"
 	"github.com/Bronku/iroon/store"
 )
 
@@ -27,8 +28,8 @@ func main() {
 
 	a = auth.New()
 
-	http.HandleFunc("GET /order/", logger(a.Authenticate(h.form)))
-	http.HandleFunc("GET /", logger(a.Authenticate(h.index)))
-	http.HandleFunc("POST /", logger(a.Authenticate(h.addOrder)))
+	http.HandleFunc("GET /order/", middleware.Logger(a.Authenticate(h.form)))
+	http.HandleFunc("GET /", middleware.Logger(a.Authenticate(h.index)))
+	http.HandleFunc("POST /", middleware.Logger(a.Authenticate(h.addOrder)))
 	http.ListenAndServe(":8080", nil)
 }
