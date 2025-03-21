@@ -2,9 +2,9 @@
 
 ## Critical Features
 
-- [ ] Database Implementation
+- [x] Database Implementation
 
-  - [ ] Init mode to create a new db
+  - [x] Init mode to create a new db
   - [x] Set up SQLite database
   - [x] Create proper schemas
   - [x] Implement data persistence

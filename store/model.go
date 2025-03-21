@@ -1,15 +1,15 @@
-package main
+package store
 
 import "time"
 
-type cake struct {
+type Cake struct {
 	Name   string
 	ID     int
 	Price  int
 	Amount int
 }
 
-type order struct {
+type Order struct {
 	ID       int
 	Name     string
 	Surname  string
@@ -19,5 +19,5 @@ type order struct {
 	Accepted time.Time
 	Status   string
 	Paid     int // increments of 0.01
-	Cakes    []cake
+	Cakes    []Cake
 }

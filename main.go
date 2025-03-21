@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Bronku/iroon/auth"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/Bronku/iroon/store"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 		log.Fatal("can't parse templates: ", err)
 	}
 
-	h.s, err = openStore("./foo.db")
+	h.s, err = store.OpenStore("./foo.db")
 	if err != nil {
 		log.Fatal("can't open the databse", err)
 	}

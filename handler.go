@@ -7,38 +7,40 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Bronku/iroon/store"
 )
 
 type handler struct {
 	tmpl *template.Template
-	s    *store
+	s    *store.Store
 }
 
 func (h *handler) close() {
 	if h.s != nil {
-		h.s.close()
+		h.s.Close()
 	}
 }
 
 func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(r.URL.String(), "/")
-	o := order{
+	o := store.Order{
 		ID:   -1,
 		Date: time.Now(),
 	}
 	id, err := strconv.Atoi(url[2])
 	if err == nil {
-		newOrder, err := h.s.getOrder(id)
+		newOrder, err := h.s.GetOrder(id)
 		if err == nil {
 			o = newOrder
 		}
 	}
 	type formData struct {
-		Order     order
-		Catalogue []cake
+		Order     store.Order
+		Catalogue []store.Cake
 	}
 
-	cakes, err := h.s.getCakes()
+	cakes, err := h.s.GetCakes()
 	if err != nil {
 		fmt.Fprint(w, "server side error getting available cakes: ", err)
 		return
@@ -62,7 +64,7 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("received form: ", r.Form)
 
-	var n order
+	var n store.Order
 	n.ID, err = strconv.Atoi(r.FormValue("id"))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -96,8 +98,8 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 
 	n.Accepted = time.Now()
 
-	n.Cakes = make([]cake, 0)
-	cakes, err := h.s.getCakes()
+	n.Cakes = make([]store.Cake, 0)
+	cakes, err := h.s.GetCakes()
 	if err != nil {
 		fmt.Fprint(w, "server side error getting available cakes: ", err)
 		return
@@ -117,7 +119,7 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("parsed order: ", n)
 
-	h.s.saveOrder(n)
+	h.s.SaveOrder(n)
 
 	w.Header().Set("content-type", "text/html")
 	w.WriteHeader(http.StatusAccepted)
@@ -126,7 +128,7 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
-	orders, err := h.s.getOrders()
+	orders, err := h.s.GetOrders()
 	if err != nil {
 		fmt.Fprint(w, "server side error getting orders: ", err)
 		return

@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"database/sql"
@@ -7,17 +7,19 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed  schema.sql
 var schema string
 
-type store struct {
+type Store struct {
 	db *sql.DB
 }
 
-func openStore(filename string) (*store, error) {
-	var out store
+func OpenStore(filename string) (*Store, error) {
+	var out Store
 	var err error
 	_, err = os.Stat(filename)
 	if errors.Is(err, os.ErrNotExist) {
@@ -27,13 +29,13 @@ func openStore(filename string) (*store, error) {
 	return &out, err
 }
 
-func (s *store) close() {
+func (s *Store) Close() {
 	if s.db != nil {
 		s.db.Close()
 	}
 }
 
-func (s *store) loadSchema() error {
+func (s *Store) loadSchema() error {
 	if s.db == nil {
 		return errors.New("database doesn't exist")
 	}
@@ -41,8 +43,8 @@ func (s *store) loadSchema() error {
 	return err
 }
 
-func (s *store) getCake(id int) (cake, error) {
-	out := cake{ID: id}
+func (s *Store) GetCake(id int) (Cake, error) {
+	out := Cake{ID: id}
 	row, err := s.db.Query("select name, price from cake where id = ?;", id)
 	if err != nil {
 		return out, err
@@ -53,15 +55,15 @@ func (s *store) getCake(id int) (cake, error) {
 	return out, err
 }
 
-func (s *store) getCakes() ([]cake, error) {
+func (s *Store) GetCakes() ([]Cake, error) {
 	rows, err := s.db.Query("select id, name, price from cake")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	cakes := make([]cake, 0)
+	cakes := make([]Cake, 0)
 	for rows.Next() {
-		var c cake
+		var c Cake
 		c.Amount = 0
 		err = rows.Scan(&c.ID, &c.Name, &c.Price)
 		if err != nil {
@@ -72,7 +74,7 @@ func (s *store) getCakes() ([]cake, error) {
 	return cakes, err
 }
 
-func (s *store) saveCake(newCake cake) (int, error) {
+func (s *Store) SaveCake(newCake Cake) (int, error) {
 	query := "insert into cake(name, price) values (?, ?) returning id;"
 	if newCake.ID != -1 {
 		query = "update cake set name = ? , price = ? where id = "
@@ -90,8 +92,8 @@ func (s *store) saveCake(newCake cake) (int, error) {
 	return newCake.ID, err
 }
 
-func (s *store) getOrder(id int) (order, error) {
-	var out order
+func (s *Store) GetOrder(id int) (Order, error) {
+	var out Order
 	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
 	defer row.Close()
 	if err != nil {
@@ -107,19 +109,19 @@ func (s *store) getOrder(id int) (order, error) {
 	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
-	out.Cakes = make([]cake, 0)
+	out.Cakes = make([]Cake, 0)
 	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
 	if err != nil {
 		return out, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var newCake cake
+		var newCake Cake
 		err = rows.Scan(&newCake.ID, &newCake.Amount)
 		if err != nil {
 			return out, err
 		}
-		cakeData, err := s.getCake(newCake.ID)
+		cakeData, err := s.GetCake(newCake.ID)
 		if err != nil {
 			continue
 		}
@@ -131,8 +133,8 @@ func (s *store) getOrder(id int) (order, error) {
 	return out, nil
 }
 
-func (s *store) getOrders() ([]order, error) {
-	var out []order
+func (s *Store) GetOrders() ([]Order, error) {
+	var out []Order
 	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
 	if err != nil {
 		return out, err
@@ -140,7 +142,7 @@ func (s *store) getOrders() ([]order, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var o order
+		var o Order
 		var order_date, delivery_date string
 		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
 		if err != nil {
@@ -149,7 +151,7 @@ func (s *store) getOrders() ([]order, error) {
 		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
-		o.Cakes = make([]cake, 0)
+		o.Cakes = make([]Cake, 0)
 		rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
 
 		if err != nil {
@@ -157,12 +159,12 @@ func (s *store) getOrders() ([]order, error) {
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var newCake cake
+			var newCake Cake
 			err = rows.Scan(&newCake.ID, &newCake.Amount)
 			if err != nil {
 				return out, err
 			}
-			cakeData, err := s.getCake(newCake.ID)
+			cakeData, err := s.GetCake(newCake.ID)
 			if err != nil {
 				continue
 			}
@@ -177,7 +179,7 @@ func (s *store) getOrders() ([]order, error) {
 	return out, nil
 }
 
-func (s *store) saveOrder(newOrder order) (int, error) {
+func (s *Store) SaveOrder(newOrder Order) (int, error) {
 	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?) returning id;"
 	if newOrder.ID != -1 {
 		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "

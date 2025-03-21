@@ -1,4 +1,4 @@
-package main
+package store
 
 import (
 	"testing"
@@ -6,21 +6,21 @@ import (
 )
 
 func TestStore(t *testing.T) {
-	s, err := openStore("file:memdb1?mode=memory&cache=shared")
+	s, err := OpenStore("file:memdb1?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatalf("Failed to create store: %v", err)
 	}
-	defer s.close()
+	defer s.Close()
 
 	// ensure db is empty
-	cakes, err := s.getCakes()
+	cakes, err := s.GetCakes()
 	if err != nil {
 		t.Errorf("Error getting cakes: %v", err)
 	}
 	if len(cakes) != 0 {
 		t.Errorf("Expected empty cakes list, got: %v", cakes)
 	}
-	orders, err := s.getOrders()
+	orders, err := s.GetOrders()
 	if err != nil {
 		t.Errorf("Error getting orders: %v", err)
 	}
@@ -29,8 +29,8 @@ func TestStore(t *testing.T) {
 	}
 
 	// create new cake
-	newCake := cake{Name: "Chocolate Cake", ID: -1, Price: 2500, Amount: -1}
-	newCake.ID, err = s.saveCake(newCake)
+	newCake := Cake{Name: "Chocolate Cake", ID: -1, Price: 2500, Amount: -1}
+	newCake.ID, err = s.SaveCake(newCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
 	}
@@ -39,8 +39,8 @@ func TestStore(t *testing.T) {
 	}
 
 	// create another cake
-	anotherCake := cake{Name: "Another Cake", ID: -1, Price: 3000, Amount: -1}
-	anotherCake.ID, err = s.saveCake(anotherCake)
+	anotherCake := Cake{Name: "Another Cake", ID: -1, Price: 3000, Amount: -1}
+	anotherCake.ID, err = s.SaveCake(anotherCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestStore(t *testing.T) {
 	// Update Existing Cake
 	newCake.Name = "Updated Cake"
 	newCake.Price = 100
-	newID, err := s.saveCake(newCake)
+	newID, err := s.SaveCake(newCake)
 	if newID != newCake.ID {
 		t.Error("wrong id")
 	}
@@ -60,15 +60,15 @@ func TestStore(t *testing.T) {
 	}
 
 	// Update Non-existing Cake
-	var updatedCake cake
+	var updatedCake Cake
 	updatedCake.ID = 10
-	_, err = s.saveCake(updatedCake)
+	_, err = s.SaveCake(updatedCake)
 	if err == nil {
 		t.Error("did not return an error when attempted to update non existant cake")
 	}
 
 	// get cakes
-	cakes, err = s.getCakes()
+	cakes, err = s.GetCakes()
 	if err != nil {
 		t.Fatalf("Failed to get all cakes after creation: %v", err)
 	}
@@ -96,7 +96,7 @@ func TestStore(t *testing.T) {
 		t.Errorf("Want %v\nGot  %v", anotherCake, cakes)
 	}
 
-	selectedCake, err := s.getCake(newCake.ID)
+	selectedCake, err := s.GetCake(newCake.ID)
 	if err != nil {
 		t.Error("error getting a cake", err)
 	}
@@ -104,14 +104,14 @@ func TestStore(t *testing.T) {
 		t.Errorf("Want %v\nGot  %v", newCake, selectedCake)
 	}
 
-	selectedCake, err = s.getCake(-1)
+	selectedCake, err = s.GetCake(-1)
 	if err == nil {
 		t.Error("no error getting a non-existant cake")
 	}
 
 	// create new order
 	now := time.Now()
-	newOrder := order{
+	newOrder := Order{
 		ID:       -1,
 		Name:     "John",
 		Surname:  "Doe",
@@ -121,9 +121,9 @@ func TestStore(t *testing.T) {
 		Date:     now.Add(time.Hour * 24),
 		Status:   "Pending",
 		Paid:     1000,
-		Cakes:    []cake{{ID: newCake.ID, Amount: 2}, {ID: anotherCake.ID, Amount: 10}},
+		Cakes:    []Cake{{ID: newCake.ID, Amount: 2}, {ID: anotherCake.ID, Amount: 10}},
 	}
-	newOrder.ID, err = s.saveOrder(newOrder)
+	newOrder.ID, err = s.SaveOrder(newOrder)
 	if err != nil {
 		t.Fatalf("Failed to save new order: %v", err)
 	}
@@ -132,7 +132,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create another order
-	anotherOrder := order{
+	anotherOrder := Order{
 		ID:       -1,
 		Name:     "Jane",
 		Surname:  "Doe",
@@ -142,9 +142,9 @@ func TestStore(t *testing.T) {
 		Date:     now.Add(time.Hour * 192),
 		Status:   "Accepted",
 		Paid:     1500,
-		Cakes:    []cake{{ID: newCake.ID, Amount: 100}},
+		Cakes:    []Cake{{ID: newCake.ID, Amount: 100}},
 	}
-	anotherOrder.ID, err = s.saveOrder(anotherOrder)
+	anotherOrder.ID, err = s.SaveOrder(anotherOrder)
 	if err != nil {
 		t.Fatalf("Failed to save new order: %v", err)
 	}
@@ -156,7 +156,7 @@ func TestStore(t *testing.T) {
 	newOrder.Name = "James"
 	newOrder.Status = "Done"
 	newOrder.Cakes = newOrder.Cakes[1:]
-	newID, err = s.saveOrder(newOrder)
+	newID, err = s.SaveOrder(newOrder)
 	if newID != newOrder.ID {
 		t.Error("wrong id")
 	}
@@ -165,15 +165,15 @@ func TestStore(t *testing.T) {
 	}
 
 	// update non existing order
-	var updatedOrder order
+	var updatedOrder Order
 	updatedOrder.ID = 10
-	_, err = s.saveOrder(updatedOrder)
+	_, err = s.SaveOrder(updatedOrder)
 	if err == nil {
 		t.Error("did not return an error when attempted to update non existant cake")
 	}
 
 	// get orders
-	orders, err = s.getOrders()
+	orders, err = s.GetOrders()
 	if err != nil {
 		t.Fatalf("Failed to get all orders after creation: %v", err)
 	}
@@ -223,7 +223,7 @@ func TestStore(t *testing.T) {
 		t.Errorf("Want %v\nGot  %v", anotherOrder.Cakes, orders[anotherOrderPos].Cakes)
 	}
 
-	selectedOrder, err := s.getOrder(newOrder.ID)
+	selectedOrder, err := s.GetOrder(newOrder.ID)
 	if err != nil {
 		t.Error("error getting an order by id ", err)
 	}
@@ -241,20 +241,20 @@ func TestStore(t *testing.T) {
 		t.Errorf("Want %v\nGot  %v", newOrder.Cakes, selectedOrder.Cakes)
 	}
 
-	_, err = s.getOrder(-1)
+	_, err = s.GetOrder(-1)
 	if err == nil {
 		t.Error("no error getting invalid order")
 	}
 }
 
 func TestSliceComparison(t *testing.T) {
-	a := []cake{
+	a := []Cake{
 		{Name: "ok", Price: 100, ID: 12, Amount: 10},
 		{Name: "ok", Price: 11, ID: 13, Amount: 1},
 		{Name: "ok", Price: 100, ID: 10, Amount: 11},
 	}
 
-	b := []cake{
+	b := []Cake{
 		{Name: "okas", Price: 110, ID: 12, Amount: 10},
 		{Name: "oksa", Price: 11, ID: 13, Amount: 1},
 		{Name: "oasdk", Price: 101, ID: 10, Amount: 11},
@@ -264,11 +264,11 @@ func TestSliceComparison(t *testing.T) {
 	}
 }
 
-func areCakesEqual(a, b cake) bool {
+func areCakesEqual(a, b Cake) bool {
 	return a.ID == b.ID && a.Amount == b.Amount
 }
 
-func areCakeSlicesEqual(a, b []cake) bool {
+func areCakeSlicesEqual(a, b []Cake) bool {
 	if len(a) != len(b) {
 		return false
 	}
