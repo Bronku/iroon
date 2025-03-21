@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 //go:embed  login.html
@@ -13,6 +14,11 @@ var loginPage string
 var wrongPassword string
 
 type Authenticator struct {
+	sessions map[string]token
+}
+
+func New() Authenticator {
+	return Authenticator{sessions: make(map[string]token)}
 }
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
@@ -34,9 +40,16 @@ func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, wrongPassword)
 		return
 	}
+	key := generateKey()
+	a.sessions[key] = token{userName: login, created: time.Now(), lastAccess: time.Now()}
 	c := http.Cookie{
-		Name:  "token",
-		Value: "good",
+		Name:     "token",
+		Value:    key,
+		HttpOnly: true,
+		// #todo (in prod) uncomment this line
+		//Secure: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 	}
 	http.SetCookie(w, &c)
 	http.Redirect(w, r, "/", http.StatusFound)
@@ -48,11 +61,18 @@ func (a *Authenticator) Authenticate(in http.HandlerFunc) http.HandlerFunc {
 			a.login(w, r)
 			return
 		}
-		if _, err := r.Cookie("token"); err != nil {
-			fmt.Println("user not logged in")
+		c, err := r.Cookie("token")
+		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
+		value, ok := a.sessions[c.Value]
+		if !ok || time.Since(value.lastAccess) > time.Hour*24 || time.Since(value.lastAccess) > time.Hour*240 {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		value.lastAccess = time.Now()
+		a.sessions[c.Value] = value
 		in(w, r)
 	}
 }

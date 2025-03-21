@@ -25,6 +25,8 @@ func main() {
 		log.Fatal("can't open the databse", err)
 	}
 
+	a = auth.New()
+
 	http.HandleFunc("GET /order/", logger(a.Authenticate(h.form)))
 	http.HandleFunc("GET /", logger(a.Authenticate(h.index)))
 	http.HandleFunc("POST /", logger(a.Authenticate(h.addOrder)))
