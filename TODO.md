@@ -27,13 +27,14 @@
 
 ## Security
 
-- [ ] Authentication System
-  - [ ] User login/logout
+- [x] Authentication System
+  - [x] User login
+  - [ ] User logout
   - [ ] Role-based access (admin, staff)
   - [ ] Password hashing
 - [ ] CSRF Protection
 - [ ] Input Sanitization
-- [ ] Session Management
+- [x] Session Management
 
 ## UI/UX Improvements
 
