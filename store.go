@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	_ "embed"
+	"errors"
 	"os"
 	"strconv"
 	"time"
@@ -15,27 +16,29 @@ type store struct {
 	db *sql.DB
 }
 
-func NewStore(filename string) (*store, error) {
+func openStore(filename string) (*store, error) {
 	var out store
 	var err error
-	if filename != ":memory:" && filename != "file:memdb1?mode=memory&cache=shared" {
-		os.Remove(filename)
+	_, err = os.Stat(filename)
+	if errors.Is(err, os.ErrNotExist) {
+		defer out.loadSchema()
 	}
 	out.db, err = sql.Open("sqlite3", filename)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = out.db.Exec(schema)
-	if err != nil {
-		out.db.Close()
-		return nil, err
-	}
-	return &out, nil
+	return &out, err
 }
 
 func (s *store) close() {
-	s.db.Close()
+	if s.db != nil {
+		s.db.Close()
+	}
+}
+
+func (s *store) loadSchema() error {
+	if s.db == nil {
+		return errors.New("database doesn't exist")
+	}
+	_, err := s.db.Exec(schema)
+	return err
 }
 
 func (s *store) getCake(id int) (cake, error) {

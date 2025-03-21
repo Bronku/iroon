@@ -4,6 +4,7 @@
 
 - [ ] Database Implementation
 
+  - [ ] Init mode to create a new db
   - [x] Set up SQLite database
   - [x] Create proper schemas
   - [x] Implement data persistence
@@ -123,6 +124,7 @@
 - [ ] Integration Tests
 - [ ] File structure
 - [ ] Embed templates
+- [ ] Single init function for handler
 
 ## Future Considerations
 
