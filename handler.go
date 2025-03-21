@@ -14,6 +14,12 @@ type handler struct {
 	s    *store
 }
 
+func (h *handler) close() {
+	if h.s != nil {
+		h.s.close()
+	}
+}
+
 func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(r.URL.String(), "/")
 	o := order{

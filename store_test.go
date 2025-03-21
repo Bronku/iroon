@@ -6,7 +6,7 @@ import (
 )
 
 func TestStore(t *testing.T) {
-	s, err := NewStore("file:memdb1?mode=memory&cache=shared")
+	s, err := openStore("file:memdb1?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatalf("Failed to create store: %v", err)
 	}
