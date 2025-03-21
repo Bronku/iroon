@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Bronku/iroon/auth"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 	var err error
 	var h handler
+	var a auth.Authenticator
 	defer h.close()
 
 	h.tmpl, err = template.ParseFiles("index.html", "order.html")
@@ -23,8 +25,8 @@ func main() {
 		log.Fatal("can't open the databse", err)
 	}
 
-	http.HandleFunc("GET /order/", logger(h.form))
-	http.HandleFunc("GET /", logger(h.index))
-	http.HandleFunc("POST /", logger(h.addOrder))
-	go http.ListenAndServe(":8080", nil)
+	http.HandleFunc("GET /order/", logger(a.Authenticate(h.form)))
+	http.HandleFunc("GET /", logger(a.Authenticate(h.index)))
+	http.HandleFunc("POST /", logger(a.Authenticate(h.addOrder)))
+	http.ListenAndServe(":8080", nil)
 }
