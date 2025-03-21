@@ -1,8 +1,8 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 )
 
 type Authenticator struct {
@@ -10,22 +10,25 @@ type Authenticator struct {
 
 func (a *Authenticator) Authenticate(in http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		c := http.Cookie{
-			Name: "RequestCounter",
-		}
-		cookie, err := r.Cookie("RequestCounter")
-		if err != nil {
-			cookie = &http.Cookie{
-				Value: "0",
+		if r.URL.String() == "/loginok" {
+			c := http.Cookie{
+				Name:  "token",
+				Value: "good",
 			}
+			http.SetCookie(w, &c)
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
 		}
-		count, err := strconv.Atoi(cookie.Value)
-		if err != nil {
-			c.Value = "1"
-		} else {
-			c.Value = strconv.Itoa(count + 1)
+		if r.URL.String() == "/login" {
+			w.Header().Set("content-type", "text/html")
+			fmt.Fprint(w, "<a href='/loginok'>Login</a>")
+			return
 		}
-		http.SetCookie(w, &c)
+		if _, err := r.Cookie("token"); err != nil {
+			fmt.Println("user not logged in")
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
 		in(w, r)
 	}
 }
