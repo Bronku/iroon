@@ -27,5 +27,4 @@ func main() {
 	http.HandleFunc("GET /", logger(h.index))
 	http.HandleFunc("POST /", logger(h.addOrder))
 	go http.ListenAndServe(":8080", nil)
-	adminConsole()
 }
