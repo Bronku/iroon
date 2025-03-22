@@ -6,11 +6,11 @@ import (
 
 	"github.com/Bronku/iroon/auth"
 	"github.com/Bronku/iroon/logging"
-	"github.com/Bronku/iroon/router"
+	"github.com/Bronku/iroon/server"
 )
 
 func main() {
-	h, err := router.New()
+	h, err := server.New()
 	if err != nil {
 		log.Fatal(err)
 	}

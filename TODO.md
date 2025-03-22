@@ -126,7 +126,7 @@
 - [ ] Integration Tests
 - [ ] File structure
 - [ ] Embed templates
-- [ ] Single init function for handler
+- [x] Single init function for handler
 
 ## Future Considerations
 
