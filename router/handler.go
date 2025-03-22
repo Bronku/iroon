@@ -1,4 +1,4 @@
-package main
+package router
 
 import (
 	"fmt"
@@ -11,18 +11,31 @@ import (
 	"github.com/Bronku/iroon/store"
 )
 
-type handler struct {
+type Router struct {
 	tmpl *template.Template
 	s    *store.Store
 }
 
-func (h *handler) close() {
+func (h *Router) Close() {
 	if h.s != nil {
 		h.s.Close()
 	}
 }
 
-func (h *handler) form(w http.ResponseWriter, r *http.Request) {
+func (h *Router) OenStore() error {
+	var err error
+	h.s, err = store.OpenStore("./foo.db")
+	return err
+}
+
+// #todo embed templates, and load them in init function
+func (h *Router) LoadTemplates() error {
+	var err error
+	h.tmpl, err = template.ParseFiles("index.html", "order.html")
+	return err
+}
+
+func (h *Router) Form(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(r.URL.String(), "/")
 	o := store.Order{
 		ID:   -1,
@@ -55,7 +68,7 @@ func (h *handler) form(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
+func (h *Router) AddOrder(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Println("can't parse the form")
@@ -126,7 +139,7 @@ func (h *handler) addOrder(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("accepted <a href='/'>back</a>"))
 }
 
-func (h *handler) index(w http.ResponseWriter, r *http.Request) {
+func (h *Router) Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	orders, err := h.s.GetOrders()
 	if err != nil {
