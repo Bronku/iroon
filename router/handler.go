@@ -11,18 +11,19 @@ import (
 	"github.com/Bronku/iroon/store"
 )
 
-type Router struct {
+type Server struct {
 	tmpl *template.Template
 	s    *store.Store
+	http.Handler
 }
 
-func (h *Router) Close() {
+func (h *Server) Close() {
 	if h.s != nil {
 		h.s.Close()
 	}
 }
 
-func (h *Router) openStore() error {
+func (h *Server) openStore() error {
 	var err error
 	h.s, err = store.OpenStore("./foo.db")
 	if err != nil {
@@ -32,27 +33,42 @@ func (h *Router) openStore() error {
 }
 
 // #todo embed templates, and load them in init function
-func (h *Router) loadTemplates() error {
+func (h *Server) loadTemplates() error {
 	var err error
 	h.tmpl, err = template.ParseFiles("index.html", "order.html")
 	return err
 }
 
-func New() (*Router, error) {
-	var router Router
-	var err error
-	err = router.loadTemplates()
-	if err != nil {
-		return nil, err
-	}
-	err = router.openStore()
-	if err != nil {
-		return nil, err
-	}
-	return &router, nil
+func (h *Server) loadHandler() {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /order/", h.Form)
+	mux.HandleFunc("GET /", h.Index)
+	mux.HandleFunc("POST /", h.AddOrder)
+
+	h.Handler = mux
 }
 
-func (h *Router) Form(w http.ResponseWriter, r *http.Request) {
+func New() (*Server, error) {
+	var server Server
+	var err error
+
+	err = server.loadTemplates()
+	if err != nil {
+		return nil, err
+	}
+
+	err = server.openStore()
+	if err != nil {
+		return nil, err
+	}
+
+	server.loadHandler()
+
+	return &server, nil
+}
+
+func (h *Server) Form(w http.ResponseWriter, r *http.Request) {
 	url := strings.Split(r.URL.String(), "/")
 	o := store.Order{
 		ID:   -1,
@@ -85,7 +101,7 @@ func (h *Router) Form(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Router) AddOrder(w http.ResponseWriter, r *http.Request) {
+func (h *Server) AddOrder(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Println("can't parse the form")
@@ -156,7 +172,7 @@ func (h *Router) AddOrder(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("accepted <a href='/'>back</a>"))
 }
 
-func (h *Router) Index(w http.ResponseWriter, r *http.Request) {
+func (h *Server) Index(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	orders, err := h.s.GetOrders()
 	if err != nil {

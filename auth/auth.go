@@ -17,8 +17,8 @@ type Authenticator struct {
 	sessions map[string]token
 }
 
-func New() Authenticator {
-	return Authenticator{sessions: make(map[string]token)}
+func New() *Authenticator {
+	return &Authenticator{sessions: make(map[string]token)}
 }
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
@@ -55,8 +55,8 @@ func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (a *Authenticator) Authenticate(in http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (a *Authenticator) Middleware(in http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.String() == "/login" {
 			a.login(w, r)
 			return
@@ -73,6 +73,6 @@ func (a *Authenticator) Authenticate(in http.HandlerFunc) http.HandlerFunc {
 		}
 		value.lastAccess = time.Now()
 		a.sessions[c.Value] = value
-		in(w, r)
-	}
+		in.ServeHTTP(w, r)
+	})
 }
