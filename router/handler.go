@@ -22,17 +22,34 @@ func (h *Router) Close() {
 	}
 }
 
-func (h *Router) OenStore() error {
+func (h *Router) openStore() error {
 	var err error
 	h.s, err = store.OpenStore("./foo.db")
+	if err != nil {
+		h.s.Close()
+	}
 	return err
 }
 
 // #todo embed templates, and load them in init function
-func (h *Router) LoadTemplates() error {
+func (h *Router) loadTemplates() error {
 	var err error
 	h.tmpl, err = template.ParseFiles("index.html", "order.html")
 	return err
+}
+
+func New() (*Router, error) {
+	var router Router
+	var err error
+	err = router.loadTemplates()
+	if err != nil {
+		return nil, err
+	}
+	err = router.openStore()
+	if err != nil {
+		return nil, err
+	}
+	return &router, nil
 }
 
 func (h *Router) Form(w http.ResponseWriter, r *http.Request) {

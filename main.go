@@ -10,21 +10,13 @@ import (
 )
 
 func main() {
-	var err error
-	var h router.Router
-	var a auth.Authenticator
+	h, err := router.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer h.Close()
 
-	err = h.LoadTemplates()
-	if err != nil {
-		log.Fatal("can't parse templates: ", err)
-	}
-
-	err = h.OenStore()
-	if err != nil {
-		log.Fatal("can't open the databse", err)
-	}
-
+	var a auth.Authenticator
 	a = auth.New()
 
 	// #todo: make handler functions private, and create a servemux in router
