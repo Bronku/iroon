@@ -31,8 +31,8 @@ func (h *Server) openStore() error {
 func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /order/", h.getOrder)
-	mux.HandleFunc("GET /", h.index)
+	mux.HandleFunc("GET /order/", h.render(h.order, "order.html"))
+	mux.HandleFunc("GET /", h.render(h.index, "index.html"))
 	mux.HandleFunc("POST /order/", h.postOrder)
 
 	h.Handler = mux

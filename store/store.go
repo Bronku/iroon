@@ -76,7 +76,7 @@ func (s *Store) GetCakes() ([]Cake, error) {
 
 func (s *Store) SaveCake(newCake Cake) (int, error) {
 	query := "insert into cake(name, price) values (?, ?) returning id;"
-	if newCake.ID != -1 {
+	if newCake.ID != 0 {
 		query = "update cake set name = ? , price = ? where id = "
 		query += strconv.Itoa(newCake.ID) + " returning id;"
 	}
@@ -181,7 +181,7 @@ func (s *Store) GetOrders() ([]Order, error) {
 
 func (s *Store) SaveOrder(newOrder Order) (int, error) {
 	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?) returning id;"
-	if newOrder.ID != -1 {
+	if newOrder.ID != 0 {
 		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "
 		query += strconv.Itoa(newOrder.ID) + " returning id;"
 	}
