@@ -18,9 +18,9 @@ func (h *Server) loadTemplates() error {
 func (s *Server) render(fetch fetcher, templateName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "text/html")
-		data, err := fetch(r)
+		data, code, err := fetch(r)
 		if err != nil {
-			errorPage(err, http.StatusInternalServerError).ServeHTTP(w, r)
+			errorPage(err, code).ServeHTTP(w, r)
 			return
 		}
 		err = s.tmpl.ExecuteTemplate(w, templateName, data)
