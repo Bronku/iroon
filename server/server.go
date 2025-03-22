@@ -33,7 +33,7 @@ func (h *Server) loadHandler() {
 
 	mux.HandleFunc("GET /order/", h.render(h.getOrder, "order.html"))
 	mux.HandleFunc("GET /", h.render(h.index, "index.html"))
-	mux.HandleFunc("POST /order/", h.postOrder)
+	mux.HandleFunc("POST /order/", h.render(h.postOrder, "confirmation.html"))
 
 	h.Handler = mux
 }

@@ -18,15 +18,15 @@
             <input type="tel" name="phone" value="{{.Phone}}">
             <label>location</label>
             <select name="location">
-                <option value="Kartuzy">Kartuzy</option>
-                <option value="Somonino">Somonino</option>
+                <option {{ if eq .Location "Kartuzy" }}selected{{ end }} value="Kartuzy">Kartuzy</option>
+                <option {{ if eq .Location "Somonino" }}selected{{ end }} value="Somonino">Somonino</option>
             </select>
             <label>date</label>
             <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
             <label>status</label>
-            <select name="status" id="status">
-                <option value="accepted">accepted</option>
-                <option value="done">done</option>
+            <select name="status" id="status" >
+                <option {{ if eq .Status "accepted" }}selected{{ end }} value="accepted">accepted</option>
+                <option {{ if eq .Status "done" }}selected{{ end }} value="done">done</option>
             </select>
             <label>paid</label>
             <input type="number" name="paid" min="0" value="{{.Paid}}">
