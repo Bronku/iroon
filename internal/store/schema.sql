@@ -22,3 +22,5 @@ create table ordered_cake (
     amount integer not null,
     primary key (customer_order, cake)
 );
+
+PRAGMA user_version = 1;

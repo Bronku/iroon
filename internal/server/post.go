@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Bronku/iroon/store"
+	"github.com/Bronku/iroon/internal/store"
 )
 
 func (h *Server) postOrder(r *http.Request) (any, int, error) {

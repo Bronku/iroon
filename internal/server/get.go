@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Bronku/iroon/store"
+	"github.com/Bronku/iroon/internal/store"
 )
 
 func (h *Server) index(r *http.Request) (any, int, error) {

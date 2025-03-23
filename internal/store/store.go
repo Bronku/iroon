@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "embed"
 	"errors"
-	"os"
 	"strconv"
 	"time"
 
@@ -21,11 +20,13 @@ type Store struct {
 func OpenStore(filename string) (*Store, error) {
 	var out Store
 	var err error
-	_, err = os.Stat(filename)
-	if errors.Is(err, os.ErrNotExist) {
-		defer out.loadSchema()
-	}
+
 	out.db, err = sql.Open("sqlite3", filename)
+	if err != nil {
+		return &out, err
+	}
+
+	err = out.loadSchema()
 	return &out, err
 }
 
@@ -35,10 +36,27 @@ func (s *Store) Close() {
 	}
 }
 
+func (s *Store) version() int {
+	out := -1
+	row, err := s.db.Query("PRAGMA user_version;")
+	if err != nil {
+		return out
+	}
+	defer row.Close()
+	row.Next()
+	_ = row.Scan(&out)
+	return out
+}
+
 func (s *Store) loadSchema() error {
 	if s.db == nil {
 		return errors.New("database doesn't exist")
 	}
+
+	if s.version() == 1 {
+		return nil
+	}
+
 	_, err := s.db.Exec(schema)
 	return err
 }
@@ -83,11 +101,13 @@ func (s *Store) SaveCake(newCake Cake) (int, error) {
 
 	row, err := s.db.Query(query, newCake.Name, newCake.Price)
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 	defer row.Close()
 
-	row.Next()
+	if !row.Next() {
+		return 0, errors.New("The database didn't respond with an id")
+	}
 	err = row.Scan(&newCake.ID)
 	return newCake.ID, err
 }
@@ -95,10 +115,10 @@ func (s *Store) SaveCake(newCake Cake) (int, error) {
 func (s *Store) GetOrder(id int) (Order, error) {
 	var out Order
 	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
-	defer row.Close()
 	if err != nil {
 		return out, err
 	}
+	defer row.Close()
 
 	var order_date, delivery_date string
 	row.Next()
@@ -187,22 +207,25 @@ func (s *Store) SaveOrder(newOrder Order) (int, error) {
 	}
 	tx, err := s.db.Begin()
 	if err != nil {
-		return -1, nil
+		return 0, err
 	}
 
 	accepted := newOrder.Accepted.Format("2006-01-02 15:04")
 	date := newOrder.Date.Format("2006-01-02 15:04")
 	row, err := tx.Query(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid)
 	if err != nil {
-		tx.Rollback()
-		return -1, err
+		_ = tx.Rollback()
+		return 0, err
 	}
 	defer row.Close()
 
-	row.Next()
+	if !row.Next() {
+		_ = tx.Rollback()
+		return 0, errors.New("The database didn't respond with an id")
+	}
 	err = row.Scan(&newOrder.ID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return newOrder.ID, err
 	}
 
@@ -210,7 +233,7 @@ func (s *Store) SaveOrder(newOrder Order) (int, error) {
 	query = "delete from ordered_cake where customer_order = ?;"
 	_, err = tx.Exec(query, newOrder.ID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return newOrder.ID, err
 	}
 
@@ -219,7 +242,7 @@ func (s *Store) SaveOrder(newOrder Order) (int, error) {
 	for _, e := range newOrder.Cakes {
 		_, err := tx.Exec(query, newOrder.ID, e.ID, e.Amount)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return newOrder.ID, err
 		}
 	}

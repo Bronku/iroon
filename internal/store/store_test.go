@@ -29,7 +29,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create new cake
-	newCake := Cake{Name: "Chocolate Cake", ID: -1, Price: 2500, Amount: -1}
+	newCake := Cake{Name: "Chocolate Cake", Price: 2500}
 	newCake.ID, err = s.SaveCake(newCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
@@ -39,7 +39,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create another cake
-	anotherCake := Cake{Name: "Another Cake", ID: -1, Price: 3000, Amount: -1}
+	anotherCake := Cake{Name: "Another Cake", Price: 3000}
 	anotherCake.ID, err = s.SaveCake(anotherCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
@@ -112,7 +112,6 @@ func TestStore(t *testing.T) {
 	// create new order
 	now := time.Now()
 	newOrder := Order{
-		ID:       -1,
 		Name:     "John",
 		Surname:  "Doe",
 		Phone:    "123-456-7890",
@@ -133,7 +132,6 @@ func TestStore(t *testing.T) {
 
 	// create another order
 	anotherOrder := Order{
-		ID:       -1,
 		Name:     "Jane",
 		Surname:  "Doe",
 		Phone:    "123-456-7890",
@@ -198,8 +196,8 @@ func TestStore(t *testing.T) {
 		newOrder.Phone != orders[newOrderPos].Phone ||
 		newOrder.Status != orders[newOrderPos].Status ||
 		newOrder.Location != orders[newOrderPos].Location ||
-		newOrder.Accepted.Format("2006-01-02 15:04") != newOrder.Accepted.Format("2006-01-02 15:04") ||
-		newOrder.Date.Format("2006-01-02 15:04") != newOrder.Date.Format("2006-01-02 15:04") {
+		newOrder.Accepted.Format("2006-01-02 15:04") != orders[newOrderPos].Accepted.Format("2006-01-02 15:04") ||
+		newOrder.Date.Format("2006-01-02 15:04") != orders[newOrderPos].Date.Format("2006-01-02 15:04") {
 		t.Errorf("Want %v\nGot  %v", newOrder, orders[newOrderPos])
 	}
 	if !areCakeSlicesEqual(newOrder.Cakes, orders[newOrderPos].Cakes) {
@@ -214,8 +212,8 @@ func TestStore(t *testing.T) {
 		anotherOrder.Phone != orders[anotherOrderPos].Phone ||
 		anotherOrder.Status != orders[anotherOrderPos].Status ||
 		anotherOrder.Location != orders[anotherOrderPos].Location ||
-		anotherOrder.Accepted.Format("2006-01-02 15:04") != anotherOrder.Accepted.Format("2006-01-02 15:04") ||
-		anotherOrder.Date.Format("2006-01-02 15:04") != anotherOrder.Date.Format("2006-01-02 15:04") {
+		anotherOrder.Accepted.Format("2006-01-02 15:04") != orders[anotherOrderPos].Accepted.Format("2006-01-02 15:04") ||
+		anotherOrder.Date.Format("2006-01-02 15:04") != orders[anotherOrderPos].Date.Format("2006-01-02 15:04") {
 		t.Errorf("Want %v\nGot  %v", anotherOrder, orders[anotherOrderPos])
 	}
 
@@ -232,8 +230,8 @@ func TestStore(t *testing.T) {
 		newOrder.Phone != selectedOrder.Phone ||
 		newOrder.Status != selectedOrder.Status ||
 		newOrder.Location != selectedOrder.Location ||
-		newOrder.Accepted.Format("2006-01-02 15:04") != newOrder.Accepted.Format("2006-01-02 15:04") ||
-		newOrder.Date.Format("2006-01-02 15:04") != newOrder.Date.Format("2006-01-02 15:04") {
+		newOrder.Accepted.Format("2006-01-02 15:04") != selectedOrder.Accepted.Format("2006-01-02 15:04") ||
+		newOrder.Date.Format("2006-01-02 15:04") != selectedOrder.Date.Format("2006-01-02 15:04") {
 		t.Errorf("Want %v\nGot  %v", newOrder, selectedOrder)
 	}
 
