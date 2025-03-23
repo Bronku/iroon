@@ -6,21 +6,29 @@ import (
 )
 
 type Cake struct {
-	Name   string
-	ID     int
-	Price  int
-	Amount int
+	Name         string
+	ID           int
+	Price        int
+	Amount       int
+	Category     string
+	Availability string
 }
 
-
 func (s *Store) GetCake(id int) (Cake, error) {
-	out := Cake{ID: id}
-	row, err := s.db.Query("select name, price from cake where id = ?;", id)
+	var out Cake
+	query := "select name, price from cake where id = ?;"
+
+	row, err := s.db.Query(query, id)
 	if err != nil {
 		return out, err
 	}
 	defer row.Close()
-	row.Next()
+
+	if !row.Next() {
+		return out, errors.New("cake not found")
+	}
+
+	out.ID = id
 	err = row.Scan(&out.Name, &out.Price)
 	return out, err
 }
