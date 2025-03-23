@@ -10,10 +10,7 @@ import (
 )
 
 func Run() {
-	h, err := server.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	h := server.New()
 	defer h.Close()
 
 	var handler http.Handler = h

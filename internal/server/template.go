@@ -3,16 +3,19 @@ package server
 import (
 	"embed"
 	"html/template"
+	"log"
 	"net/http"
 )
 
 //go:embed templates/*
 var templates embed.FS
 
-func (h *Server) loadTemplates() error {
+func (h *Server) loadTemplates() {
 	var err error
 	h.tmpl, err = template.ParseFS(templates, "templates/*")
-	return err
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (s *Server) render(fetch fetcher, templateName string) http.HandlerFunc {

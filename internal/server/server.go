@@ -19,15 +19,6 @@ func (h *Server) Close() {
 	}
 }
 
-func (h *Server) openStore() error {
-	var err error
-	h.s, err = store.OpenStore("./foo.db")
-	if err != nil {
-		h.s.Close()
-	}
-	return err
-}
-
 func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
@@ -38,21 +29,12 @@ func (h *Server) loadHandler() {
 	h.Handler = mux
 }
 
-func New() (*Server, error) {
+func New() *Server {
 	var server Server
-	var err error
 
-	err = server.loadTemplates()
-	if err != nil {
-		return nil, err
-	}
-
-	err = server.openStore()
-	if err != nil {
-		return nil, err
-	}
-
+	server.loadTemplates()
+	server.s = store.OpenStore("./foo.db")
 	server.loadHandler()
 
-	return &server, nil
+	return &server
 }

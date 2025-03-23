@@ -3,7 +3,7 @@ package store
 import (
 	"embed"
 	_ "embed"
-	"errors"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -11,38 +11,29 @@ import (
 //go:embed migrations/*.sql
 var migrations embed.FS
 
-func (s *Store) loadFile(file string) error {
+func (s *Store) loadFile(file string) {
 	filename := strings.Split(file, ".")
 	version, err := strconv.Atoi(filename[0])
 	if err != nil {
-		return err
+		log.Fatal("only allowed files in migrations directory are <version>.txt")
 	}
 	if version <= s.version() {
-		return nil
+		return
 	}
-	query, err := migrations.ReadFile("migrations/" + file)
-	if err != nil {
-		return err
-	}
+
+	query, _ := migrations.ReadFile("migrations/" + file)
 	_, err = s.db.Exec(string(query))
-	return err
+	if err != nil {
+		log.Fatal("error executing migration: ", file)
+	}
 }
 
-func (s *Store) loadMigrations() error {
-	if s.db == nil {
-		return errors.New("database doesn't exist")
-	}
-
-	migration_files, err := migrations.ReadDir("migrations")
-	if err != nil {
-		return err
-	}
+func (s *Store) loadMigrations() {
+	migration_files, _ := migrations.ReadDir("migrations")
 
 	for _, e := range migration_files {
-		_ = s.loadFile(e.Name())
+		s.loadFile(e.Name())
 	}
-
-	return nil
 }
 
 func (s *Store) version() int {
