@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"log"
 	"time"
 )
 
@@ -14,6 +15,8 @@ type token struct {
 
 func generateKey() string {
 	key := [32]byte{}
-	rand.Read(key[:])
+	if _, err := rand.Read(key[:]); err != nil {
+		log.Fatal("can't generate a vaild key", err)
+	}
 	return base64.StdEncoding.EncodeToString(key[:])
 }
