@@ -5,4 +5,4 @@ create table session (
     lastAccess text
 );
 
-PRAGMA user_version = 2;
+pragma user_version = 2;

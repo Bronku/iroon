@@ -24,7 +24,7 @@ func (s *Store) loadFile(file string) {
 	query, _ := migrations.ReadFile("migrations/" + file)
 	_, err = s.db.Exec(string(query))
 	if err != nil {
-		log.Fatal("error executing migration: ", file)
+		log.Fatal("error executing migration: ", file, err)
 	}
 }
 

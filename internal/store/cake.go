@@ -19,7 +19,7 @@ func (s *Store) cakeCount() int {
 	if err != nil {
 		return out
 	}
-	rows.Close()
+	defer rows.Close()
 	_ = rows.Next()
 	_ = rows.Scan(&out)
 	return out
@@ -53,23 +53,19 @@ func (s *Store) searchCakes(id int) (int, error) {
 		}
 		return i, nil
 	}
-	return -1, errors.New("cake not found")
+	return 0, errors.New("cake not found")
 }
 
 func (s *Store) GetCake(id int) (Cake, error) {
 	if id <= 0 {
 		return Cake{}, errors.New("Invalid cake id")
 	}
-	if len(s.cakes) < id {
-		i, err := s.searchCakes(id)
-		return s.cakes[i], err
-	}
-	if s.cakes[id-1].ID != id {
-		i, err := s.searchCakes(id)
-		return s.cakes[i], err
-	}
 
-	return s.cakes[id-1], nil
+	i, err := s.searchCakes(id)
+	if err != nil {
+		return Cake{}, err
+	}
+	return s.cakes[i], err
 }
 
 func (s *Store) GetCakes() ([]Cake, error) {

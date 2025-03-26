@@ -23,4 +23,4 @@ create table ordered_cake (
     primary key (customer_order, cake)
 );
 
-PRAGMA user_version = 1;
+pragma user_version = 1;
