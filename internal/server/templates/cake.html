@@ -1,0 +1,31 @@
+<header>
+    <h1>New Order</h1>
+</header>
+<nav>
+    <a href="/">back</a>
+</nav>
+<main>
+    <form method="post">
+        <div>
+            <h2>Info</h2>
+            <input hidden="true" name="id" value="{{.ID}}">
+            <label>name</label>
+            <input type="text" name="name" value="{{.Name}}">
+            <label>price</label>
+            <input type="number" name="price" min="0" value="{{.Price}}">
+            <label>category</label>
+            <select name="category" id="category" >
+                <option {{ if eq .Category "common" }}selected{{ end }} value="common">common</option>
+                <option {{ if eq .Category "christmas" }}selected{{ end }} value="christmas">christmas</option>
+                <option {{ if eq .Category "easter" }}selected{{ end }} value="easter">easter</option>
+                <option {{ if eq .Category "donuts" }}selected{{ end }} value="donuts">donuts</option>
+            </select>
+            <label>availability</label>
+            <select name="availibility" id="availibility" >
+                <option {{ if eq .Availability "available" }}selected{{ end }} value="available">available</option>
+                <option {{ if eq .Availability "unavailable" }}selected{{ end }} value="unavailable">unavailable</option>
+            </select>
+        </div>
+        <button type="submit">submit</button>
+    </form>
+</main>
