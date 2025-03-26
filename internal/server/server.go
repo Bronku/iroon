@@ -27,6 +27,7 @@ func (h *Server) loadHandler() {
 	mux.HandleFunc("POST /order/", h.render(h.postOrder, "confirmation.html"))
 	mux.HandleFunc("GET /cakes", h.render(h.cakes, "cakes.html"))
 	mux.HandleFunc("GET /cake/", h.render(h.cake, "cake.html"))
+	mux.HandleFunc("POST /cake/", h.render(h.postCake, "confirmation.html"))
 
 	h.Handler = mux
 }

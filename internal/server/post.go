@@ -10,6 +10,28 @@ import (
 	"github.com/Bronku/iroon/internal/store"
 )
 
+func (h *Server) postCake(r *http.Request) (any, int, error) {
+	err := r.ParseForm()
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	var n store.Cake
+	n.ID, err = strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	n.Name = r.FormValue("name")
+	n.Price, err = strconv.Atoi(r.FormValue("price"))
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	n.Category = r.FormValue("category")
+	n.Availability = r.FormValue("availibility")
+	fmt.Println(n)
+	return n, http.StatusAccepted, err
+}
+
 func (h *Server) postOrder(r *http.Request) (any, int, error) {
 	cakes, err := h.s.GetCakes()
 	if err != nil {
