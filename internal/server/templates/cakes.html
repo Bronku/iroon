@@ -1,0 +1,27 @@
+<header>
+    <h1>Kill me please</h1>
+</header>
+<nav>
+    <a href="order">New</a>
+    <a href="cakes">Manage Cakes</a>
+</nav>
+<main>
+    <table>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Availability</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <th><a href="/cake/{{.ID}}">edit</a></th>
+            <th>{{.Name}}</th>
+            <th>{{.Price}}</th>
+            <th>{{.Category}}</th>
+            <th>{{.Availability}}</th>
+        </tr>
+        {{end}}
+    </table>
+</main>

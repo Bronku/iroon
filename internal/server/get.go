@@ -13,7 +13,12 @@ func (h *Server) index(r *http.Request) (any, int, error) {
 	return data, http.StatusOK, err
 }
 
-func (h *Server) getOrder(r *http.Request) (any, int, error) {
+func (h *Server) cakes(r *http.Request) (any, int, error) {
+	data, err := h.s.GetCakes()
+	return data, http.StatusOK, err
+}
+
+func (h *Server) order(r *http.Request) (any, int, error) {
 	type formData struct {
 		Order     store.Order
 		Catalogue []store.Cake
