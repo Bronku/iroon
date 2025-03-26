@@ -2,7 +2,6 @@ package store
 
 import (
 	"errors"
-	"strconv"
 )
 
 type Cake struct {
@@ -14,60 +13,90 @@ type Cake struct {
 	Availability string
 }
 
-func (s *Store) GetCake(id int) (Cake, error) {
-	var out Cake
-	query := "select name, price from cake where id = ?;"
+func (s *Store) cakeCount() int {
+	out := 0
+	rows, err := s.db.Query("select count(*) from cake;")
+	if err != nil {
+		return out
+	}
+	rows.Close()
+	_ = rows.Next()
+	_ = rows.Scan(&out)
+	return out
+}
 
-	row, err := s.db.Query(query, id)
+func (s *Store) loadCakes() ([]Cake, error) {
+	out := make([]Cake, 0, s.cakeCount())
+
+	rows, err := s.db.Query("select id, name, price, category, availability from cake order by id asc;")
 	if err != nil {
 		return out, err
 	}
-	defer row.Close()
+	defer rows.Close()
 
-	if !row.Next() {
-		return out, errors.New("cake not found")
+	for rows.Next() {
+		var cake Cake
+		err = rows.Scan(&cake.ID, &cake.Name, &cake.Price, &cake.Category, &cake.Availability)
+		if err != nil {
+			continue
+		}
+		out = append(out, cake)
 	}
 
-	out.ID = id
-	err = row.Scan(&out.Name, &out.Price)
-	return out, err
+	return out, nil
+}
+
+func (s *Store) searchCakes(id int) (int, error) {
+	for i, e := range s.cakes {
+		if e.ID != id {
+			continue
+		}
+		return i, nil
+	}
+	return -1, errors.New("cake not found")
+}
+
+func (s *Store) GetCake(id int) (Cake, error) {
+	if id <= 0 {
+		return Cake{}, errors.New("Invalid cake id")
+	}
+	if len(s.cakes) < id {
+		i, err := s.searchCakes(id)
+		return s.cakes[i], err
+	}
+	if s.cakes[id-1].ID != id {
+		i, err := s.searchCakes(id)
+		return s.cakes[i], err
+	}
+
+	return s.cakes[id-1], nil
 }
 
 func (s *Store) GetCakes() ([]Cake, error) {
-	rows, err := s.db.Query("select id, name, price from cake")
+	result := make([]Cake, len(s.cakes))
+	copy(result, s.cakes)
+	return result, nil
+}
+
+func (s *Store) updateCake(newCake Cake) error {
+	i, err := s.searchCakes(newCake.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
-	cakes := make([]Cake, 0)
-	for rows.Next() {
-		var c Cake
-		c.Amount = 0
-		err = rows.Scan(&c.ID, &c.Name, &c.Price)
-		if err != nil {
-			return nil, err
-		}
-		cakes = append(cakes, c)
-	}
-	return cakes, err
+	s.cakes[i] = newCake
+	return nil
+}
+
+// #todo: implement
+func (s *Store) SyncCakes() error {
+	return nil
 }
 
 func (s *Store) SaveCake(newCake Cake) (int, error) {
-	query := "insert into cake(name, price) values (?, ?) returning id;"
 	if newCake.ID != 0 {
-		query = "update cake set name = ? , price = ? where id = "
-		query += strconv.Itoa(newCake.ID) + " returning id;"
+		return newCake.ID, s.updateCake(newCake)
 	}
-
-	row, err := s.db.Query(query, newCake.Name, newCake.Price)
-	if err != nil {
-		return 0, err
-	}
-	defer row.Close()
-
-	if !row.Next() {
-		return 0, errors.New("The database didn't respond with an id")
-	}
-	err = row.Scan(&newCake.ID)
-	return newCake.ID, err
+	newCake.ID = len(s.cakes) + 1
+	s.cakes = append(s.cakes, newCake)
+	return newCake.ID, nil
 }

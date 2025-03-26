@@ -22,6 +22,10 @@ func OpenStore(filename string) *Store {
 	}
 
 	out.loadMigrations()
+	out.cakes, err = out.loadCakes()
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &out
 }
 
