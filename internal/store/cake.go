@@ -75,6 +75,12 @@ func (s *Store) GetCakes() ([]Cake, error) {
 }
 
 func (s *Store) updateCake(newCake Cake) error {
+	query := "update cake set name = ? , price = ?, category = ?, availability = ?  where id = ?"
+	_, err := s.db.Exec(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability, newCake.ID)
+	if err != nil {
+		return err
+	}
+
 	i, err := s.searchCakes(newCake.ID)
 	if err != nil {
 		return err
@@ -92,7 +98,19 @@ func (s *Store) SaveCake(newCake Cake) (int, error) {
 	if newCake.ID != 0 {
 		return newCake.ID, s.updateCake(newCake)
 	}
-	newCake.ID = len(s.cakes) + 1
+	query := "insert into cake(name, price, category, availability) values (?, ?, ?, ?) returning id;"
+	rows, err := s.db.Query(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability)
+	if err != nil {
+		return 0, err
+	}
+	if !rows.Next() {
+		return 0, errors.New("query didn't return the cake id")
+	}
+	err = rows.Scan(&newCake.ID)
+	if err != nil {
+		return 0, err
+	}
+
 	s.cakes = append(s.cakes, newCake)
 	return newCake.ID, nil
 }
