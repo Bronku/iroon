@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Cake struct {
@@ -98,11 +99,13 @@ func (s *Store) SaveCake(newCake Cake) (int, error) {
 	if newCake.ID != 0 {
 		return newCake.ID, s.updateCake(newCake)
 	}
+	fmt.Println("adding a new cake", newCake)
 	query := "insert into cake(name, price, category, availability) values (?, ?, ?, ?) returning id;"
 	rows, err := s.db.Query(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability)
 	if err != nil {
 		return 0, err
 	}
+	defer rows.Close()
 	if !rows.Next() {
 		return 0, errors.New("query didn't return the cake id")
 	}

@@ -29,6 +29,7 @@ func (h *Server) postCake(r *http.Request) (any, int, error) {
 	n.Category = r.FormValue("category")
 	n.Availability = r.FormValue("availibility")
 	n.ID, err = h.s.SaveCake(n)
+	fmt.Println(err)
 	return n, http.StatusAccepted, err
 }
 
