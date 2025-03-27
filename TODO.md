@@ -8,8 +8,8 @@
   - [x] Set up SQLite database
   - [x] Create proper schemas
   - [x] Implement data persistence
-  - [ ] Add database migrations
-  - [ ] Add database caching
+  - [x] Add database migrations
+  - [x] Add database caching
 
 - [ ] Input Validation
 
@@ -21,7 +21,7 @@
 
 - [ ] Price Management
   - [ ] Calculate order totals
-  - [ ] Handle partial payments
+  - [x] Handle partial payments
   - [ ] Add payment status tracking
   - [ ] Implement payment validation
 
@@ -45,17 +45,13 @@
   - [ ] Print-friendly styles
 - [ ] Improve Navigation
 - [ ] Add Loading States
-- [ ] Confirmation Dialogs
+- [x] Confirmation Dialogs
 - [ ] Form Autosave
-- [ ] Success/Error Notifications
+- [x] Success/Error Notifications
 
 ## Order Management
 
-- [ ] Order Status System
-  - [ ] Pending
-  - [ ] In Progress
-  - [ ] Completed
-  - [ ] Cancelled
+- [x] Order Status System
 - [ ] Order Search & Filtering
   - [ ] By date range
   - [ ] By status
@@ -68,11 +64,12 @@
 
 - [ ] Track Ingredients
 - [ ] Low Stock Alerts
-- [ ] Cake Catalog Management
-  - [ ] Add/Edit/Delete cakes
-  - [ ] Cake categories
+- [x] Cake Catalog Management
+  - [x] Add/Edit/Delete cakes
+  - [x] Cake categories
+  - [ ] Multiple categories for each cake
   - [ ] Cake images
-- [ ] Seasonal Menu Items
+- [x] Seasonal Menu Items
 
 ## Reporting & Analytics
 
@@ -124,8 +121,8 @@
 - [ ] API Documentation
 - [ ] Unit Tests
 - [ ] Integration Tests
-- [ ] File structure
-- [ ] Embed templates
+- [x] File structure
+- [x] Embed templates
 - [x] Single init function for handler
 
 ## Future Considerations
