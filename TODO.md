@@ -32,7 +32,7 @@
   - [x] User login
   - [ ] User logout
   - [ ] Role-based access (admin, staff)
-  - [ ] Password hashing
+  - [x] Password hashing
 - [ ] CSRF Protection
 - [ ] Input Sanitization
 - [x] Session Management
