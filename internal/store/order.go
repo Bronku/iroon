@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strconv"
 	"time"
+
+	"github.com/Bronku/iroon/internal/models"
 )
 
 type Order struct {
@@ -16,7 +18,7 @@ type Order struct {
 	Accepted time.Time
 	Status   string
 	Paid     int // increments of 0.01
-	Cakes    []Cake
+	Cakes    []models.Cake
 }
 
 func (s *Store) GetOrder(id int) (Order, error) {
@@ -36,14 +38,14 @@ func (s *Store) GetOrder(id int) (Order, error) {
 	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
-	out.Cakes = make([]Cake, 0)
+	out.Cakes = make([]models.Cake, 0)
 	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
 	if err != nil {
 		return out, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var newCake Cake
+		var newCake models.Cake
 		err = rows.Scan(&newCake.ID, &newCake.Amount)
 		if err != nil {
 			return out, err
@@ -78,7 +80,7 @@ func (s *Store) GetOrders() ([]Order, error) {
 		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
 		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
-		o.Cakes = make([]Cake, 0)
+		o.Cakes = make([]models.Cake, 0)
 		rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
 
 		if err != nil {
@@ -86,7 +88,7 @@ func (s *Store) GetOrders() ([]Order, error) {
 		}
 		defer rows.Close()
 		for rows.Next() {
-			var newCake Cake
+			var newCake models.Cake
 			err = rows.Scan(&newCake.ID, &newCake.Amount)
 			if err != nil {
 				return out, err

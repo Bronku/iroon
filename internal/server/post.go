@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Bronku/iroon/internal/models"
 	"github.com/Bronku/iroon/internal/store"
 )
 
@@ -16,7 +17,7 @@ func (h *Server) postCake(r *http.Request) (any, int, error) {
 		return nil, http.StatusInternalServerError, err
 	}
 
-	var n store.Cake
+	var n models.Cake
 	n.ID, err = strconv.Atoi(r.FormValue("id"))
 	if err != nil {
 		return nil, http.StatusBadRequest, err
@@ -58,7 +59,7 @@ func (h *Server) postOrder(r *http.Request) (any, int, error) {
 		return nil, http.StatusBadRequest, err
 	}
 
-	n.Cakes = make([]store.Cake, 0)
+	n.Cakes = make([]models.Cake, 0)
 	for _, e := range cakes {
 		e.Amount, err = strconv.Atoi(r.FormValue(fmt.Sprintf("cake[%d]", e.ID)))
 		if err != nil {

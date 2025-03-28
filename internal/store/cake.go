@@ -3,16 +3,9 @@ package store
 import (
 	"errors"
 	"fmt"
-)
 
-type Cake struct {
-	Name         string
-	ID           int
-	Price        int
-	Amount       int
-	Category     string
-	Availability string
-}
+	"github.com/Bronku/iroon/internal/models"
+)
 
 func (s *Store) cakeCount() int {
 	out := 0
@@ -26,8 +19,8 @@ func (s *Store) cakeCount() int {
 	return out
 }
 
-func (s *Store) loadCakes() ([]Cake, error) {
-	out := make([]Cake, 0, s.cakeCount())
+func (s *Store) loadCakes() ([]models.Cake, error) {
+	out := make([]models.Cake, 0, s.cakeCount())
 
 	rows, err := s.db.Query("select id, name, price, category, availability from cake order by id asc;")
 	if err != nil {
@@ -36,7 +29,7 @@ func (s *Store) loadCakes() ([]Cake, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var cake Cake
+		var cake models.Cake
 		err = rows.Scan(&cake.ID, &cake.Name, &cake.Price, &cake.Category, &cake.Availability)
 		if err != nil {
 			continue
@@ -57,25 +50,25 @@ func (s *Store) searchCakes(id int) (int, error) {
 	return 0, errors.New("cake not found")
 }
 
-func (s *Store) GetCake(id int) (Cake, error) {
+func (s *Store) GetCake(id int) (models.Cake, error) {
 	if id <= 0 {
-		return Cake{}, errors.New("Invalid cake id")
+		return models.Cake{}, errors.New("Invalid cake id")
 	}
 
 	i, err := s.searchCakes(id)
 	if err != nil {
-		return Cake{}, err
+		return models.Cake{}, err
 	}
 	return s.cakes[i], err
 }
 
-func (s *Store) GetCakes() ([]Cake, error) {
-	result := make([]Cake, len(s.cakes))
+func (s *Store) GetCakes() ([]models.Cake, error) {
+	result := make([]models.Cake, len(s.cakes))
 	copy(result, s.cakes)
 	return result, nil
 }
 
-func (s *Store) updateCake(newCake Cake) error {
+func (s *Store) updateCake(newCake models.Cake) error {
 	query := "update cake set name = ? , price = ?, category = ?, availability = ?  where id = ?"
 	_, err := s.db.Exec(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability, newCake.ID)
 	if err != nil {
@@ -95,7 +88,7 @@ func (s *Store) SyncCakes() error {
 	return nil
 }
 
-func (s *Store) SaveCake(newCake Cake) (int, error) {
+func (s *Store) SaveCake(newCake models.Cake) (int, error) {
 	if newCake.ID != 0 {
 		return newCake.ID, s.updateCake(newCake)
 	}

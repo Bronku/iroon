@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Bronku/iroon/internal/models"
 	"github.com/Bronku/iroon/internal/store"
 )
 
@@ -21,7 +22,7 @@ func (h *Server) cakes(r *http.Request) (any, int, error) {
 func (h *Server) cake(r *http.Request) (any, int, error) {
 	url := strings.Split(r.URL.String(), "/")
 	if len(url) < 3 || url[2] == "" {
-		return store.Cake{}, http.StatusOK, nil
+		return models.Cake{}, http.StatusOK, nil
 	}
 
 	id, err := strconv.Atoi(url[2])
@@ -40,7 +41,7 @@ func (h *Server) cake(r *http.Request) (any, int, error) {
 func (h *Server) order(r *http.Request) (any, int, error) {
 	type formData struct {
 		Order     store.Order
-		Catalogue []store.Cake
+		Catalogue []models.Cake
 	}
 	var err error
 	var data formData

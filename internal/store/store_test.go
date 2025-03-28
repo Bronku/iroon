@@ -3,6 +3,8 @@ package store
 import (
 	"testing"
 	"time"
+
+	"github.com/Bronku/iroon/internal/models"
 )
 
 func TestStore(t *testing.T) {
@@ -26,7 +28,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create new cake
-	newCake := Cake{Name: "Chocolate Cake", Price: 2500}
+	newCake := models.Cake{Name: "Chocolate Cake", Price: 2500}
 	newCake.ID, err = s.SaveCake(newCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
@@ -36,7 +38,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create another cake
-	anotherCake := Cake{Name: "Another Cake", Price: 3000}
+	anotherCake := models.Cake{Name: "Another Cake", Price: 3000}
 	anotherCake.ID, err = s.SaveCake(anotherCake)
 	if err != nil {
 		t.Fatalf("Failed to save new cake: %v", err)
@@ -57,7 +59,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// Update Non-existing Cake
-	var updatedCake Cake
+	var updatedCake models.Cake
 	updatedCake.ID = 10
 	_, err = s.SaveCake(updatedCake)
 	if err == nil {
@@ -117,7 +119,7 @@ func TestStore(t *testing.T) {
 		Date:     now.Add(time.Hour * 24),
 		Status:   "Pending",
 		Paid:     1000,
-		Cakes:    []Cake{{ID: newCake.ID, Amount: 2}, {ID: anotherCake.ID, Amount: 10}},
+		Cakes:    []models.Cake{{ID: newCake.ID, Amount: 2}, {ID: anotherCake.ID, Amount: 10}},
 	}
 	newOrder.ID, err = s.SaveOrder(newOrder)
 	if err != nil {
@@ -137,7 +139,7 @@ func TestStore(t *testing.T) {
 		Date:     now.Add(time.Hour * 192),
 		Status:   "Accepted",
 		Paid:     1500,
-		Cakes:    []Cake{{ID: newCake.ID, Amount: 100}},
+		Cakes:    []models.Cake{{ID: newCake.ID, Amount: 100}},
 	}
 	anotherOrder.ID, err = s.SaveOrder(anotherOrder)
 	if err != nil {
@@ -243,13 +245,13 @@ func TestStore(t *testing.T) {
 }
 
 func TestSliceComparison(t *testing.T) {
-	a := []Cake{
+	a := []models.Cake{
 		{Name: "ok", Price: 100, ID: 12, Amount: 10},
 		{Name: "ok", Price: 11, ID: 13, Amount: 1},
 		{Name: "ok", Price: 100, ID: 10, Amount: 11},
 	}
 
-	b := []Cake{
+	b := []models.Cake{
 		{Name: "okas", Price: 110, ID: 12, Amount: 10},
 		{Name: "oksa", Price: 11, ID: 13, Amount: 1},
 		{Name: "oasdk", Price: 101, ID: 10, Amount: 11},
@@ -259,11 +261,11 @@ func TestSliceComparison(t *testing.T) {
 	}
 }
 
-func areCakesEqual(a, b Cake) bool {
+func areCakesEqual(a, b models.Cake) bool {
 	return a.ID == b.ID && a.Amount == b.Amount
 }
 
-func areCakeSlicesEqual(a, b []Cake) bool {
+func areCakeSlicesEqual(a, b []models.Cake) bool {
 	if len(a) != len(b) {
 		return false
 	}
