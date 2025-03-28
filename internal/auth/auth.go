@@ -3,22 +3,35 @@ package auth
 import (
 	_ "embed"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
+
+	"github.com/Bronku/iroon/internal/models"
+	"github.com/Bronku/iroon/internal/store"
 )
 
-//go:embed  login.html
+//go:embed  templates/login.html
 var loginPage string
 
-//go:embed wrongPassword.html
+//go:embed templates/wrongPassword.html
 var wrongPassword string
 
 type Authenticator struct {
-	sessions map[string]token
+	sessions map[string]models.Token
+	s        *store.Store
 }
 
-func New() *Authenticator {
-	return &Authenticator{sessions: make(map[string]token)}
+func New(s *store.Store) *Authenticator {
+	var out Authenticator
+	var err error
+	out.s = s
+	out.sessions, err = s.GetSessions()
+	fmt.Println(out.sessions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &out
 }
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
@@ -40,18 +53,14 @@ func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, wrongPassword)
 		return
 	}
-	key := generateKey()
-	a.sessions[key] = token{userName: login, created: time.Now(), lastAccess: time.Now()}
-	c := http.Cookie{
-		Name:     "token",
-		Value:    key,
-		HttpOnly: true,
-		// #todo (in prod) uncomment this line
-		//Secure: true,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
+	cookie, err := a.newSession(login)
+	// #todo: change to a some sort of internal server error
+	if err != nil {
+		w.Header().Set("content-type", "text/html")
+		fmt.Fprint(w, "internal server error")
+		return
 	}
-	http.SetCookie(w, &c)
+	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -67,12 +76,19 @@ func (a *Authenticator) Middleware(in http.Handler) http.Handler {
 			return
 		}
 		value, ok := a.sessions[c.Value]
-		if !ok || time.Since(value.lastAccess) > time.Hour*24 || time.Since(value.lastAccess) > time.Hour*240 {
+		if !ok {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-		value.lastAccess = time.Now()
-		a.sessions[c.Value] = value
+		if time.Since(value.Expiration) > 0 {
+			delete(a.sessions, c.Value)
+			err := a.s.CleanSessions()
+			if err != nil {
+				fmt.Println("error cleaning the sessions", err)
+			}
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
 		in.ServeHTTP(w, r)
 	})
 }

@@ -14,9 +14,6 @@ type Server struct {
 }
 
 func (h *Server) Close() {
-	if h.s != nil {
-		h.s.Close()
-	}
 }
 
 func (h *Server) loadHandler() {
@@ -32,11 +29,11 @@ func (h *Server) loadHandler() {
 	h.Handler = mux
 }
 
-func New() *Server {
+func New(store *store.Store) *Server {
 	var server Server
 
 	server.loadTemplates()
-	server.s = store.OpenStore("./foo.db")
+	server.s = store
 	server.loadHandler()
 
 	return &server
