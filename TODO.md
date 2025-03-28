@@ -117,6 +117,7 @@
 - [ ] Error Handling
   - [ ] Proper error logging
   - [ ] User-friendly error messages
+  - [ ] A better way to handle the error page
 - [ ] Performance Optimization
 - [ ] API Documentation
 - [ ] Unit Tests
