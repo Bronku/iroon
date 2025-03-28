@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+
+	"github.com/Bronku/iroon/internal/logging"
 )
 
 //go:embed templates/*
@@ -23,12 +25,12 @@ func (s *Server) render(fetch fetcher, templateName string) http.HandlerFunc {
 		w.Header().Set("content-type", "text/html")
 		data, code, err := fetch(r)
 		if err != nil {
-			errorPage(err, code).ServeHTTP(w, r)
+			logging.ErrorPage(err, code).ServeHTTP(w, r)
 			return
 		}
 		err = s.tmpl.ExecuteTemplate(w, templateName, data)
 		if err != nil {
-			errorPage(err, http.StatusInternalServerError).ServeHTTP(w, r)
+			logging.ErrorPage(err, http.StatusInternalServerError).ServeHTTP(w, r)
 		}
 	}
 }
