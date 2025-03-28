@@ -11,6 +11,7 @@ import (
 type Store struct {
 	db    *sql.DB
 	cakes []models.Cake
+	users map[string]models.User
 }
 
 func OpenStore(filename string) *Store {
@@ -24,6 +25,10 @@ func OpenStore(filename string) *Store {
 
 	out.loadMigrations()
 	out.cakes, err = out.loadCakes()
+	if err != nil {
+		log.Fatal(err)
+	}
+	out.users, err = out.loadUsers()
 	if err != nil {
 		log.Fatal(err)
 	}

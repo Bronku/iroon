@@ -13,6 +13,7 @@ import (
 
 func Run() {
 	s := store.OpenStore("./foo.db")
+	s.AddUser("admin", "secret")
 	defer s.Close()
 	h := server.New(s)
 	defer h.Close()
