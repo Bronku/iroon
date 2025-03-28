@@ -23,3 +23,11 @@ type Order struct {
 	Paid     int // increments of 0.01
 	Cakes    []Cake
 }
+
+func (o *Order) Total() int {
+	out := o.Paid * (-1)
+	for _, e := range o.Cakes {
+		out += e.Price * e.Amount
+	}
+	return out
+}

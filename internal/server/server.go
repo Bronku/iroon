@@ -20,7 +20,8 @@ func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /order/", h.render(h.order, "order.html"))
-	mux.HandleFunc("GET /", h.render(h.index, "index.html"))
+	mux.HandleFunc("GET /", h.redirect("/orders", http.StatusSeeOther))
+	mux.HandleFunc("GET /orders", h.render(h.orders, "index.html"))
 	mux.HandleFunc("POST /order/", h.render(h.postOrder, "confirmation.html"))
 	mux.HandleFunc("GET /cakes", h.render(h.cakes, "cakes.html"))
 	mux.HandleFunc("GET /cake/", h.render(h.cake, "cake.html"))

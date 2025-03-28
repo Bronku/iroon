@@ -8,7 +8,7 @@ import (
 	"github.com/Bronku/iroon/internal/models"
 )
 
-func (h *Server) index(r *http.Request) (any, int, error) {
+func (h *Server) orders(r *http.Request) (any, int, error) {
 	data, err := h.s.GetOrders()
 	return data, http.StatusOK, err
 }

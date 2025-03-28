@@ -16,7 +16,7 @@
             <th>Date</th>
             <th>Accepted</th>
             <th>Status</th>
-            <th>Paid</th>
+            <th>Total</th>
         </tr>
         {{range .}}
         <tr>
@@ -28,7 +28,7 @@
             <th>{{.Date.Format "2006-01-02"}}</th>
             <th>{{.Accepted.Format "2006-01-02"}}</th>
             <th>{{.Status}}</th>
-            <th>{{.Paid}}</th>
+            <th>{{.Total}}</th>
         </tr>
         {{end}}
     </table>
