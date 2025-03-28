@@ -1,9 +1,33 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/Bronku/iroon/internal/models"
 )
+
+func (a *Authenticator) getSession(r *http.Request) (models.Token, error) {
+	c, err := r.Cookie("token")
+	if err != nil {
+		return models.Token{}, err
+	}
+	session, ok := a.sessions[c.Value]
+	if !ok {
+		return models.Token{}, errors.New("session not found")
+	}
+	if time.Since(session.Expiration) > 0 {
+		delete(a.sessions, c.Value)
+		err := a.s.CleanSessions()
+		if err != nil {
+			fmt.Println("error cleaning the sessions", err)
+		}
+		return models.Token{}, errors.New("session expired")
+	}
+	return session, nil
+}
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
