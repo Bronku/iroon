@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/Bronku/iroon/internal/models"
-	"github.com/Bronku/iroon/internal/store"
 )
 
 func (h *Server) postCake(r *http.Request) (any, int, error) {
@@ -45,7 +44,7 @@ func (h *Server) postOrder(r *http.Request) (any, int, error) {
 		return nil, http.StatusBadRequest, err
 	}
 
-	var n store.Order
+	var n models.Order
 	n.ID, err = strconv.Atoi(r.FormValue("id"))
 	if err != nil {
 		return nil, http.StatusBadRequest, err

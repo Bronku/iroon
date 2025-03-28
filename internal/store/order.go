@@ -8,21 +8,8 @@ import (
 	"github.com/Bronku/iroon/internal/models"
 )
 
-type Order struct {
-	ID       int
-	Name     string
-	Surname  string
-	Phone    string
-	Location string
-	Date     time.Time
-	Accepted time.Time
-	Status   string
-	Paid     int // increments of 0.01
-	Cakes    []models.Cake
-}
-
-func (s *Store) GetOrder(id int) (Order, error) {
-	var out Order
+func (s *Store) GetOrder(id int) (models.Order, error) {
+	var out models.Order
 	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
 	if err != nil {
 		return out, err
@@ -62,8 +49,8 @@ func (s *Store) GetOrder(id int) (Order, error) {
 	return out, nil
 }
 
-func (s *Store) GetOrders() ([]Order, error) {
-	var out []Order
+func (s *Store) GetOrders() ([]models.Order, error) {
+	var out []models.Order
 	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
 	if err != nil {
 		return out, err
@@ -71,7 +58,7 @@ func (s *Store) GetOrders() ([]Order, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var o Order
+		var o models.Order
 		var order_date, delivery_date string
 		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
 		if err != nil {
@@ -108,7 +95,7 @@ func (s *Store) GetOrders() ([]Order, error) {
 	return out, nil
 }
 
-func (s *Store) SaveOrder(newOrder Order) (int, error) {
+func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
 	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?) returning id;"
 	if newOrder.ID != 0 {
 		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "

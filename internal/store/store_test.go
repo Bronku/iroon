@@ -110,7 +110,7 @@ func TestStore(t *testing.T) {
 
 	// create new order
 	now := time.Now()
-	newOrder := Order{
+	newOrder := models.Order{
 		Name:     "John",
 		Surname:  "Doe",
 		Phone:    "123-456-7890",
@@ -130,7 +130,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// create another order
-	anotherOrder := Order{
+	anotherOrder := models.Order{
 		Name:     "Jane",
 		Surname:  "Doe",
 		Phone:    "123-456-7890",
@@ -162,7 +162,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// update non existing order
-	var updatedOrder Order
+	var updatedOrder models.Order
 	updatedOrder.ID = 10
 	_, err = s.SaveOrder(updatedOrder)
 	if err == nil {

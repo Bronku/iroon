@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/Bronku/iroon/internal/models"
-	"github.com/Bronku/iroon/internal/store"
 )
 
 func (h *Server) index(r *http.Request) (any, int, error) {
@@ -40,7 +39,7 @@ func (h *Server) cake(r *http.Request) (any, int, error) {
 
 func (h *Server) order(r *http.Request) (any, int, error) {
 	type formData struct {
-		Order     store.Order
+		Order     models.Order
 		Catalogue []models.Cake
 	}
 	var err error
