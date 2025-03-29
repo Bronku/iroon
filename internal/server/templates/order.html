@@ -1,9 +1,7 @@
-<header>
-    <h1>New Order</h1>
-</header>
-<nav>
-    <a href="/">back</a>
-</nav>
+{{define "title"}}
+    Order
+{{end}}
+{{define "main"}}
 <main>
     <form method="post">
         {{with .Order}}
@@ -89,3 +87,4 @@
         addCake({{.ID}}, '{{.Name}} {{.Price}}', {{.Amount}})
     {{end}}
 </script>
+{{end}}
