@@ -1,6 +1,7 @@
 package server
 
 import (
+	"embed"
 	"html/template"
 	"net/http"
 
@@ -16,6 +17,9 @@ type Server struct {
 func (h *Server) Close() {
 }
 
+//go:embed static/*
+var static embed.FS
+
 func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
@@ -26,6 +30,8 @@ func (h *Server) loadHandler() {
 	mux.HandleFunc("GET /cakes", h.render(h.cakes, "cakes"))
 	mux.HandleFunc("GET /cake/", h.render(h.cake, "cake"))
 	mux.HandleFunc("POST /cake/", h.render(h.postCake, "confirmation"))
+	fs := http.FileServerFS(static)
+	mux.Handle("GET /static/", fs)
 
 	h.Handler = mux
 }
