@@ -40,6 +40,7 @@ func (h *Server) postOrder(r *http.Request) (any, int, error) {
 	}
 
 	err = r.ParseForm()
+	fmt.Println(r.PostForm)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
@@ -75,5 +76,6 @@ func (h *Server) postOrder(r *http.Request) (any, int, error) {
 	n.Status = strings.TrimSpace(r.FormValue("status"))
 
 	n.ID, err = h.s.SaveOrder(n)
+	fmt.Println(n)
 	return n, http.StatusAccepted, err
 }

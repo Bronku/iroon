@@ -9,6 +9,7 @@ import (
 )
 
 func (h *Server) orders(r *http.Request) (any, int, error) {
+	//r.URL.Query().Get()
 	data, err := h.s.GetOrders()
 	return data, http.StatusOK, err
 }
