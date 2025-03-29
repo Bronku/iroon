@@ -14,16 +14,15 @@ var templates embed.FS
 
 func (h *Server) loadTemplates() {
 	h.tmpl = make(map[string]*template.Template)
-	pages := []string{"orders", "order", "cake", "cakes", "confirmation"}
-	for _, page := range pages {
+	for _, page := range h.routes {
 		tmpl, err := template.ParseFS(templates,
 			"templates/layout/*.html",
-			"templates/"+page+".html",
+			"templates/"+page.template+".html",
 		)
 		if err != nil {
 			log.Fatal(err)
 		}
-		h.tmpl[page] = tmpl
+		h.tmpl[page.template] = tmpl
 	}
 }
 

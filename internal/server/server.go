@@ -9,9 +9,15 @@ import (
 )
 
 type Server struct {
-	tmpl map[string]*template.Template
-	s    *store.Store
+	tmpl   map[string]*template.Template
+	s      *store.Store
+	routes map[string]route
 	http.Handler
+}
+
+type route struct {
+	function fetcher
+	template string
 }
 
 func (h *Server) Close() {
@@ -23,13 +29,12 @@ var static embed.FS
 func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /order/", h.render(h.order, "order"))
+	for i, e := range h.routes {
+		mux.HandleFunc(i, h.render(e.function, e.template))
+	}
+
 	mux.HandleFunc("GET /", h.redirect("/orders", http.StatusSeeOther))
-	mux.HandleFunc("GET /orders", h.render(h.orders, "orders"))
-	mux.HandleFunc("POST /order/", h.render(h.postOrder, "confirmation"))
-	mux.HandleFunc("GET /cakes", h.render(h.cakes, "cakes"))
-	mux.HandleFunc("GET /cake/", h.render(h.cake, "cake"))
-	mux.HandleFunc("POST /cake/", h.render(h.postCake, "confirmation"))
+
 	fs := http.FileServerFS(static)
 	mux.Handle("GET /static/", fs)
 
@@ -38,6 +43,15 @@ func (h *Server) loadHandler() {
 
 func New(store *store.Store) *Server {
 	var server Server
+
+	server.routes = map[string]route{
+		"GET /order/":  {server.order, "order"},
+		"GET /orders":  {server.orders, "orders"},
+		"GET /cake/":   {server.cake, "cake"},
+		"GET /cakes":   {server.cakes, "cakes"},
+		"POST /order/": {server.postOrder, "confirmation"},
+		"POST /cake/":  {server.postCake, "confirmation"},
+	}
 
 	server.loadTemplates()
 	server.s = store
