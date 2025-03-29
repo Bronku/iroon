@@ -26,14 +26,14 @@ func (h *Server) loadTemplates() {
 	}
 }
 
-func (s *Server) render(fetch fetcher, templateName string) http.HandlerFunc {
+func (s *Server) render(fetch fetcher, templateFile string, templateEntry string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, code, err := fetch(r)
 		if err != nil {
 			logging.ErrorPage(err, code).ServeHTTP(w, r)
 			return
 		}
-		err = s.tmpl[templateName].ExecuteTemplate(w, "layout", data)
+		err = s.tmpl[templateFile].ExecuteTemplate(w, templateEntry, data)
 		if err != nil {
 			logging.ErrorPage(err, http.StatusInternalServerError).ServeHTTP(w, r)
 			return

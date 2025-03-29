@@ -4,7 +4,30 @@
 {{end}}
 {{define "main"}}
 <main>
-    <table>
+    <div class="search-container">
+        <input
+            type="search"
+            name="q"
+            hx-get="/orders/search"
+            hx-trigger="keyup changed delay:500ms"
+            hx-target="#results-table"
+            hx-push-url="true"
+            placeholder="Search orders..."
+            >
+
+        <div class="htmx-indicator">
+            Searching...
+        </div>
+
+        <div id="results-table">
+            {{template "orders-table" .}}
+        </div>
+    </div>
+</main>
+{{end}}
+
+{{define "orders-table"}}
+    <table id="orders_table">
         <tr>
             <th></th>
             <th>Name</th>
@@ -30,5 +53,4 @@
         </tr>
         {{end}}
     </table>
-</main>
-{{end}}
+    {{end}}

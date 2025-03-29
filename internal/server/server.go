@@ -16,8 +16,9 @@ type Server struct {
 }
 
 type route struct {
-	function fetcher
-	template string
+	function      fetcher
+	template      string
+	templateEntry string
 }
 
 func (h *Server) Close() {
@@ -30,7 +31,7 @@ func (h *Server) loadHandler() {
 	mux := http.NewServeMux()
 
 	for i, e := range h.routes {
-		mux.HandleFunc(i, h.render(e.function, e.template))
+		mux.HandleFunc(i, h.render(e.function, e.template, e.templateEntry))
 	}
 
 	mux.HandleFunc("GET /", h.redirect("/orders", http.StatusSeeOther))
@@ -45,12 +46,13 @@ func New(store *store.Store) *Server {
 	var server Server
 
 	server.routes = map[string]route{
-		"GET /order/":  {server.order, "order"},
-		"GET /orders":  {server.orders, "orders"},
-		"GET /cake/":   {server.cake, "cake"},
-		"GET /cakes":   {server.cakes, "cakes"},
-		"POST /order/": {server.postOrder, "confirmation"},
-		"POST /cake/":  {server.postCake, "confirmation"},
+		"GET /order/":         {server.order, "order", "layout"},
+		"GET /orders":         {server.orders, "orders", "layout"},
+		"GET /orders/search/": {server.ordersSearch, "orders", "orders-table"},
+		"GET /cake/":          {server.cake, "cake", "layout"},
+		"GET /cakes":          {server.cakes, "cakes", "layout"},
+		"POST /order/":        {server.postOrder, "confirmation", "layout"},
+		"POST /cake/":         {server.postCake, "confirmation", "layout"},
 	}
 
 	server.loadTemplates()

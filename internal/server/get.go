@@ -14,6 +14,12 @@ func (h *Server) orders(r *http.Request) (any, int, error) {
 	return data, http.StatusOK, err
 }
 
+func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
+	data, err := h.s.GetOrders()
+	data = data[:3]
+	return data, http.StatusOK, err
+}
+
 func (h *Server) cakes(r *http.Request) (any, int, error) {
 	data, err := h.s.GetCakes()
 	return data, http.StatusOK, err
