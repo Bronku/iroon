@@ -1,24 +1,20 @@
 package store
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/Bronku/iroon/internal/models"
 )
 
-func (s *Store) GetOrder(id int) (models.Order, error) {
-	var out models.Order
-	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
-	if err != nil {
-		return out, err
-	}
-	defer row.Close()
+func (s *Store) parseOrderRow(row *sql.Rows) (models.Order, error) {
 
+	var out models.Order
 	var order_date, delivery_date string
-	row.Next()
-	err = row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
+	err := row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
 	if err != nil {
 		return out, err
 	}
@@ -26,7 +22,7 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
 	out.Cakes = make([]models.Cake, 0)
-	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", id)
+	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", out.ID)
 	if err != nil {
 		return out, err
 	}
@@ -49,6 +45,17 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	return out, nil
 }
 
+func (s *Store) GetOrder(id int) (models.Order, error) {
+	var out models.Order
+	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
+	if err != nil {
+		return out, err
+	}
+	defer row.Close()
+	row.Next()
+	return s.parseOrderRow(row)
+}
+
 func (s *Store) GetTopOrders() ([]models.Order, error) {
 	var out []models.Order
 	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
@@ -58,38 +65,12 @@ func (s *Store) GetTopOrders() ([]models.Order, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var o models.Order
-		var order_date, delivery_date string
-		err = rows.Scan(&o.ID, &o.Name, &o.Surname, &o.Phone, &o.Location, &order_date, &delivery_date, &o.Status, &o.Paid)
+		order, err := s.parseOrderRow(rows)
 		if err != nil {
-			return nil, err
+			fmt.Println(err)
+			continue
 		}
-		o.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
-		o.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
-
-		o.Cakes = make([]models.Cake, 0)
-		rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", o.ID)
-
-		if err != nil {
-			return out, err
-		}
-		defer rows.Close()
-		for rows.Next() {
-			var newCake models.Cake
-			err = rows.Scan(&newCake.ID, &newCake.Amount)
-			if err != nil {
-				return out, err
-			}
-			cakeData, err := s.GetCake(newCake.ID)
-			if err != nil {
-				continue
-			}
-			newCake.Name = cakeData.Name
-			newCake.Price = cakeData.Price
-			o.Cakes = append(o.Cakes, newCake)
-		}
-
-		out = append(out, o)
+		out = append(out, order)
 	}
 
 	return out, nil
