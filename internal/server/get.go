@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,12 +11,14 @@ import (
 
 func (h *Server) orders(r *http.Request) (any, int, error) {
 	//r.URL.Query().Get()
-	data, err := h.s.GetOrders()
+	data, err := h.s.GetTopOrders()
 	return data, http.StatusOK, err
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
-	data, err := h.s.GetOrders()
+	q := r.URL.Query().Get("q")
+	fmt.Println(q)
+	data, err := h.s.GetTopOrders()
 	data = data[:3]
 	return data, http.StatusOK, err
 }

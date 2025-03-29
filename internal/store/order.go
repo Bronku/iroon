@@ -49,7 +49,7 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	return out, nil
 }
 
-func (s *Store) GetOrders() ([]models.Order, error) {
+func (s *Store) GetTopOrders() ([]models.Order, error) {
 	var out []models.Order
 	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
 	if err != nil {
