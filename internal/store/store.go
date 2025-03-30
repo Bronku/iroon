@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Bronku/iroon/internal/models"
+	_ "github.com/knaka/go-sqlite3-fts5"
 	_ "github.com/mattn/go-sqlite3"
 )
 

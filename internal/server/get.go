@@ -18,8 +18,7 @@ func (h *Server) orders(r *http.Request) (any, int, error) {
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 	q := r.URL.Query().Get("q")
 	fmt.Println(q)
-	data, err := h.s.GetTopOrders()
-	data = data[:3]
+	data, err := h.s.GetFilteredOrder(q)
 	return data, http.StatusOK, err
 }
 

@@ -11,7 +11,6 @@ import (
 )
 
 func (s *Store) parseOrderRow(row *sql.Rows) (models.Order, error) {
-
 	var out models.Order
 	var order_date, delivery_date string
 	err := row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
@@ -56,9 +55,35 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	return s.parseOrderRow(row)
 }
 
+func (s *Store) GetFilteredOrder(filter string) ([]models.Order, error) {
+	if filter == "" {
+		return s.GetTopOrders()
+	}
+	var out []models.Order
+	query := "select * from order_fts(?) order by rank;"
+	rows, err := s.db.Query(query, filter)
+	if err != nil {
+		fmt.Println(err)
+		return out, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		fmt.Println("ok")
+		order, err := s.parseOrderRow(rows)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		out = append(out, order)
+	}
+
+	return out, nil
+}
+
 func (s *Store) GetTopOrders() ([]models.Order, error) {
 	var out []models.Order
-	rows, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order;")
+	rows, err := s.db.Query("select * from customer_order;")
 	if err != nil {
 		return out, err
 	}

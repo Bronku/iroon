@@ -1,3 +1,5 @@
+github.com/knaka/go-sqlite3-fts5 v0.0.0-20240729040425-e53b86878d0d h1:I3lRivq7Zx0fqlKhCJG1KaL2tLG6aiHDj3bvJJqppKw=
+github.com/knaka/go-sqlite3-fts5 v0.0.0-20240729040425-e53b86878d0d/go.mod h1:kDHCqub/PNhQnqg8ur7OYO49jpZ+pM0mqBQ768DE3UU=
 github.com/mattn/go-sqlite3 v1.14.24 h1:tpSp2G2KyMnnQu99ngJ47EIkWVmliIizyZBfPrBWDRM=
 github.com/mattn/go-sqlite3 v1.14.24/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
 golang.org/x/crypto v0.36.0 h1:AnAEvhDddvBdpY+uR+MyHmuZzzNqXSe/GvuDeob5L34=
