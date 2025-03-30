@@ -48,6 +48,7 @@ func (s *Store) getOrdersFromQuery(query string, args ...any) ([]models.Order, e
 	var out []models.Order
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
+		fmt.Println("gofq", err)
 		return out, err
 	}
 	defer rows.Close()
@@ -76,17 +77,25 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	return out[0], nil
 }
 
-func (s *Store) GetFilteredOrder(filter string) ([]models.Order, error) {
+func (s *Store) GetFilteredOrder(filter string, from, to time.Time) ([]models.Order, error) {
 	if filter == "" {
-		return s.GetTopOrders()
+		return s.GetTopOrders(from, to)
 	}
-	query := "select * from order_fts(?) order by rank;"
-	return s.getOrdersFromQuery(query, filter)
+	start := from.Format("2006-01-02") + " 00:00"
+	end := to.Format("2006-01-02") + " 99:99"
+	if to.IsZero() {
+		end = "9999-99-99 99:99"
+	}
+	query := "select id, name, surname, phone, location, order_date, delivery_date, status, paid from order_fts(?) where delivery_date >= ? and delivery_date <= ? order by rank;"
+	return s.getOrdersFromQuery(query, filter, start, end)
 }
 
-func (s *Store) GetTopOrders() ([]models.Order, error) {
-	start := time.Now().Format("2006-01-02") + " 00:00"
-	end := time.Now().Format("2006-01-02") + " 99:99"
+func (s *Store) GetTopOrders(from, to time.Time) ([]models.Order, error) {
+	start := from.Format("2006-01-02") + " 00:00"
+	end := to.Format("2006-01-02") + " 99:99"
+	if to.IsZero() {
+		end = "9999-99-99 99:99"
+	}
 	query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
 	return s.getOrdersFromQuery(query, start, end)
 }

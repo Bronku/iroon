@@ -5,20 +5,21 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Bronku/iroon/internal/models"
 )
 
 func (h *Server) orders(r *http.Request) (any, int, error) {
 	//r.URL.Query().Get()
-	data, err := h.s.GetTopOrders()
+	data, err := h.s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
 	return data, http.StatusOK, err
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 	q := r.URL.Query().Get("q")
 	fmt.Println(q)
-	data, err := h.s.GetFilteredOrder(q)
+	data, err := h.s.GetFilteredOrder(q, time.Time{}, time.Time{})
 	return data, http.StatusOK, err
 }
 
