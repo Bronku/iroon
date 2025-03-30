@@ -65,7 +65,7 @@ func (s *Store) getOrdersFromQuery(query string, args ...any) ([]models.Order, e
 }
 
 func (s *Store) GetOrder(id int) (models.Order, error) {
-	query := "select * from customer_order where id = ?"
+	query := "select * from customer_order where id = ?;"
 	out, err := s.getOrdersFromQuery(query, id)
 	if err != nil {
 		return models.Order{}, err
@@ -85,8 +85,10 @@ func (s *Store) GetFilteredOrder(filter string) ([]models.Order, error) {
 }
 
 func (s *Store) GetTopOrders() ([]models.Order, error) {
-	query := "select * from customer_order;"
-	return s.getOrdersFromQuery(query)
+	start := time.Now().Format("2006-01-02") + " 00:00"
+	end := time.Now().Format("2006-01-02") + " 99:99"
+	query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
+	return s.getOrdersFromQuery(query, start, end)
 }
 
 func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
