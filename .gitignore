@@ -28,4 +28,4 @@ go.work.sum
 
 tmp
 tmp/main
-foo.db
+foo.db.bak

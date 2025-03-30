@@ -4,25 +4,22 @@
 {{end}}
 {{define "main"}}
 <main>
-    <div class="search-container">
-        <input
-            type="search"
-            name="q"
-            hx-get="/orders/search"
-            hx-trigger="keyup changed delay:500ms"
-            hx-target="#results-table"
-            hx-push-url="true"
-            placeholder="Search orders..."
-            >
+    <form class="search-container" hx-get="/orders/search" hx-target="#results-table", hx-trigger="keyup delay:500ms, change">
+        <input type="search" name="q" placeholder="Search orders...">
+
+        <label for="from">form</label>
+        <input type="date" value="{{.Today}}" id="from" name="from">
+        <label for="from">to</label>
+        <input type="date" value="{{.Today}}" id="to" name="to">
 
         <div class="htmx-indicator">
             Searching...
         </div>
 
         <div id="results-table">
-            {{template "orders-table" .}}
+            {{template "orders-table" .Orders}}
         </div>
-    </div>
+    </form>
 </main>
 {{end}}
 
@@ -35,7 +32,6 @@
             <th>Phone</th>
             <th>Location</th>
             <th>Date</th>
-            <th>Accepted</th>
             <th>Status</th>
             <th>Total</th>
         </tr>
@@ -47,7 +43,6 @@
             <th>{{.Phone}}</th>
             <th>{{.Location}}</th>
             <th>{{.Date.Format "2006-01-02"}}</th>
-            <th>{{.Accepted.Format "2006-01-02"}}</th>
             <th>{{.Status}}</th>
             <th>{{.Total}}</th>
         </tr>

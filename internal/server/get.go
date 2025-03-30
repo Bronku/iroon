@@ -12,14 +12,26 @@ import (
 
 func (h *Server) orders(r *http.Request) (any, int, error) {
 	//r.URL.Query().Get()
-	data, err := h.s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
+	orders, err := h.s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
+	data := struct {
+		Today  string
+		Orders []models.Order
+	}{Today: time.Now().Format("2006-01-02"), Orders: orders}
 	return data, http.StatusOK, err
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 	q := r.URL.Query().Get("q")
-	fmt.Println(q)
-	data, err := h.s.GetFilteredOrder(q, time.Time{}, time.Time{})
+	from, err := time.Parse("2006-01-02", r.URL.Query().Get("from"))
+	if err != nil {
+		from = time.Time{}
+	}
+	to, err := time.Parse("2006-01-02", r.URL.Query().Get("to"))
+	if err != nil {
+		to = time.Time{}
+	}
+	fmt.Println(from, to)
+	data, err := h.s.GetFilteredOrder(q, from, to)
 	return data, http.StatusOK, err
 }
 
