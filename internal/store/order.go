@@ -44,61 +44,49 @@ func (s *Store) parseOrderRow(row *sql.Rows) (models.Order, error) {
 	return out, nil
 }
 
-func (s *Store) GetOrder(id int) (models.Order, error) {
-	var out models.Order
-	row, err := s.db.Query("select id, name, surname, phone, location, order_date, delivery_date, status, paid from customer_order where id = ?;", id)
+func (s *Store) getOrdersFromQuery(query string, args ...any) ([]models.Order, error) {
+	var out []models.Order
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return out, err
 	}
-	defer row.Close()
-	row.Next()
-	return s.parseOrderRow(row)
+	defer rows.Close()
+
+	for rows.Next() {
+		order, err := s.parseOrderRow(rows)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		out = append(out, order)
+	}
+
+	return out, nil
+}
+
+func (s *Store) GetOrder(id int) (models.Order, error) {
+	query := "select * from customer_order where id = ?"
+	out, err := s.getOrdersFromQuery(query, id)
+	if err != nil {
+		return models.Order{}, err
+	}
+	if len(out) < 1 {
+		return models.Order{}, errors.New("no output order")
+	}
+	return out[0], nil
 }
 
 func (s *Store) GetFilteredOrder(filter string) ([]models.Order, error) {
 	if filter == "" {
 		return s.GetTopOrders()
 	}
-	var out []models.Order
 	query := "select * from order_fts(?) order by rank;"
-	rows, err := s.db.Query(query, filter)
-	if err != nil {
-		fmt.Println(err)
-		return out, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		fmt.Println("ok")
-		order, err := s.parseOrderRow(rows)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		out = append(out, order)
-	}
-
-	return out, nil
+	return s.getOrdersFromQuery(query, filter)
 }
 
 func (s *Store) GetTopOrders() ([]models.Order, error) {
-	var out []models.Order
-	rows, err := s.db.Query("select * from customer_order;")
-	if err != nil {
-		return out, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		order, err := s.parseOrderRow(rows)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		out = append(out, order)
-	}
-
-	return out, nil
+	query := "select * from customer_order;"
+	return s.getOrdersFromQuery(query)
 }
 
 func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
