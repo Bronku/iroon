@@ -52,7 +52,7 @@ func (s *Store) searchCakes(id int) (int, error) {
 
 func (s *Store) GetCake(id int) (models.Cake, error) {
 	if id <= 0 {
-		return models.Cake{}, errors.New("invalid cake id")
+		return models.Cake{}, errors.New("Invalid cake id")
 	}
 
 	i, err := s.searchCakes(id)
@@ -80,6 +80,11 @@ func (s *Store) updateCake(newCake models.Cake) error {
 		return err
 	}
 	s.cakes[i] = newCake
+	return nil
+}
+
+// #todo: implement
+func (s *Store) SyncCakes() error {
 	return nil
 }
 

@@ -29,9 +29,9 @@ func (s *Store) loadFile(file string) {
 }
 
 func (s *Store) loadMigrations() {
-	migrationFiles, _ := migrations.ReadDir("migrations")
+	migration_files, _ := migrations.ReadDir("migrations")
 
-	for _, e := range migrationFiles {
+	for _, e := range migration_files {
 		s.loadFile(e.Name())
 	}
 }

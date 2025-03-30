@@ -10,7 +10,7 @@ import (
 	"github.com/Bronku/iroon/internal/models"
 )
 
-func (h *Server) orders(_ *http.Request) (any, int, error) {
+func (h *Server) orders(r *http.Request) (any, int, error) {
 	//r.URL.Query().Get()
 	orders, err := h.s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
 	data := struct {
@@ -35,7 +35,7 @@ func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 	return data, http.StatusOK, err
 }
 
-func (h *Server) cakes(_ *http.Request) (any, int, error) {
+func (h *Server) cakes(r *http.Request) (any, int, error) {
 	data, err := h.s.GetCakes()
 	return data, http.StatusOK, err
 }

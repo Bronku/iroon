@@ -10,7 +10,7 @@ import (
 //go:embed  templates/login.html
 var loginHTML string
 
-func getLogin(w http.ResponseWriter, _ *http.Request) {
+func getLogin(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "text/html")
 	fmt.Fprint(w, loginHTML)
 	return

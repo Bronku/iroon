@@ -12,13 +12,13 @@ import (
 
 func (s *Store) parseOrderRow(row *sql.Rows) (models.Order, error) {
 	var out models.Order
-	var orderDate, deliveryDate string
-	err := row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &orderDate, &deliveryDate, &out.Status, &out.Paid)
+	var order_date, delivery_date string
+	err := row.Scan(&out.ID, &out.Name, &out.Surname, &out.Phone, &out.Location, &order_date, &delivery_date, &out.Status, &out.Paid)
 	if err != nil {
 		return out, err
 	}
-	out.Accepted, _ = time.Parse("2006-01-02 15:04", orderDate)
-	out.Date, _ = time.Parse("2006-01-02 15:04", deliveryDate)
+	out.Accepted, _ = time.Parse("2006-01-02 15:04", order_date)
+	out.Date, _ = time.Parse("2006-01-02 15:04", delivery_date)
 
 	out.Cakes = make([]models.Cake, 0)
 	rows, err := s.db.Query("select cake, amount from ordered_cake where customer_order = ?;", out.ID)
@@ -122,7 +122,7 @@ func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
 
 	if !row.Next() {
 		_ = tx.Rollback()
-		return 0, errors.New("the database didn't respond with an id")
+		return 0, errors.New("The database didn't respond with an id")
 	}
 	err = row.Scan(&newOrder.ID)
 	if err != nil {
