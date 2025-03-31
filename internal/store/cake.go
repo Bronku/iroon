@@ -22,7 +22,7 @@ func (s *Store) cakeCount() int {
 func (s *Store) loadCakes() ([]models.Cake, error) {
 	out := make([]models.Cake, 0, s.cakeCount())
 
-	rows, err := s.db.Query("select id, name, price, category, availability from cake order by id asc;")
+	rows, err := s.db.Query("select id, name, price, category, availability from cake order by id;")
 	if err != nil {
 		return out, err
 	}
@@ -88,19 +88,17 @@ func (s *Store) SaveCake(newCake models.Cake) (int, error) {
 		return newCake.ID, s.updateCake(newCake)
 	}
 	fmt.Println("adding a new cake", newCake)
-	query := "insert into cake(name, price, category, availability) values (?, ?, ?, ?) returning id;"
-	rows, err := s.db.Query(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability)
+	query := "insert into cake(name, price, category, availability) values (?, ?, ?, ?);"
+	result, err := s.db.Exec(query, newCake.Name, newCake.Price, newCake.Category, newCake.Availability)
 	if err != nil {
 		return 0, err
 	}
-	defer rows.Close()
-	if !rows.Next() {
-		return 0, errors.New("query didn't return the cake id")
-	}
-	err = rows.Scan(&newCake.ID)
+
+	id, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
+	newCake.ID = int(id)
 
 	s.cakes = append(s.cakes, newCake)
 	return newCake.ID, nil

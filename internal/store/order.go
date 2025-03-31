@@ -10,6 +10,8 @@ import (
 	"github.com/Bronku/iroon/internal/models"
 )
 
+// #todo update labels in templates
+
 func (s *Store) parseOrderRow(row *sql.Rows) (models.Order, error) {
 	var out models.Order
 	var orderDate, deliveryDate string
@@ -117,10 +119,10 @@ func (s *Store) UpdateOrderContents(tx *sql.Tx, newOrder models.Order) error {
 }
 
 func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
-	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?) returning id;"
+	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?);"
 	if newOrder.ID != 0 {
 		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "
-		query += strconv.Itoa(newOrder.ID) + " returning id;"
+		query += strconv.Itoa(newOrder.ID) + " ;"
 	}
 	tx, err := s.db.Begin()
 	if err != nil {
@@ -129,22 +131,18 @@ func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
 
 	accepted := newOrder.Accepted.Format("2006-01-02 15:04")
 	date := newOrder.Date.Format("2006-01-02 15:04")
-	row, err := tx.Query(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid)
+	result, err := tx.Exec(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid)
 	if err != nil {
 		_ = tx.Rollback()
 		return 0, err
 	}
-	defer row.Close()
 
-	if !row.Next() {
-		_ = tx.Rollback()
-		return 0, errors.New("the database didn't respond with an id")
-	}
-	err = row.Scan(&newOrder.ID)
+	id, err := result.LastInsertId()
 	if err != nil {
 		_ = tx.Rollback()
 		return newOrder.ID, err
 	}
+	newOrder.ID = int(id)
 
 	err = s.UpdateOrderContents(tx, newOrder)
 	if err != nil {
