@@ -4,13 +4,15 @@
 {{end}}
 {{define "main"}}
 <main>
-    <form class="search-container" hx-get="/orders/search" hx-target="#results-table", hx-trigger="keyup delay:500ms, change">
-        <input type="search" name="q" placeholder="Search orders...">
+    <form class="search-container" hx-get="/orders/search" hx-target="#results-table" hx-trigger="keyup delay:500ms, change">
+        <label>
+            <input type="search" name="q" placeholder="Search orders...">
+        </label>
 
         <label for="from">form</label>
         <input type="date" value="{{.Today}}" id="from" name="from">
         <label for="from">to</label>
-        <input type="date" value="{{.Today}}" id="to" name="to">
+        <label for="to"></label><input type="date" value="{{.Today}}" id="to" name="to">
 
         <div class="htmx-indicator">
             Searching...

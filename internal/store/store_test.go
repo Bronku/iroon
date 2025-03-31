@@ -63,7 +63,7 @@ func TestStore(t *testing.T) {
 	updatedCake.ID = 10
 	_, err = s.SaveCake(updatedCake)
 	if err == nil {
-		t.Error("did not return an error when attempted to update non existant cake")
+		t.Error("did not return an error when attempted to update non existent cake")
 	}
 
 	// get cakes
@@ -105,7 +105,7 @@ func TestStore(t *testing.T) {
 
 	selectedCake, err = s.GetCake(-1)
 	if err == nil {
-		t.Error("no error getting a non-existant cake")
+		t.Error("no error getting a non-existent cake")
 	}
 
 	// create new order
@@ -166,7 +166,7 @@ func TestStore(t *testing.T) {
 	updatedOrder.ID = 10
 	_, err = s.SaveOrder(updatedOrder)
 	if err == nil {
-		t.Error("did not return an error when attempted to update non existant cake")
+		t.Error("did not return an error when attempted to update non existent cake")
 	}
 
 	// get orders

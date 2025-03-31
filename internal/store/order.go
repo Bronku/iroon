@@ -48,7 +48,6 @@ func (s *Store) getOrdersFromQuery(query string, args ...any) ([]models.Order, e
 	var out []models.Order
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
-		fmt.Println("gofq", err)
 		return out, err
 	}
 	defer rows.Close()

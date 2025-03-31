@@ -28,7 +28,7 @@
 ## Security
 
 - [x] Authentication System
-  - [x] Persistant logins accross server restarts
+  - [x] Persistent logins across server restarts
   - [x] User login
   - [ ] User logout
   - [ ] Role-based access (admin, staff)

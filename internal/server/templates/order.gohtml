@@ -2,89 +2,105 @@
     Order {{.Order.ID}}
 {{end}}
 {{define "main"}}
-<main>
-    <form method="post">
-        {{with .Order}}
-        <div>
-            <h2>Info</h2>
-            <input hidden="true" name="id" value="{{.ID}}">
-            <label>name</label>
-            <input type="text" name="name" value="{{.Name}}">
-            <label>surname</label>
-            <input type="text" name="surname" value="{{.Surname}}">
-            <label>phone</label>
-            <input type="tel" name="phone" value="{{.Phone}}">
-            <label>location</label>
-            <select name="location">
-                <option {{ if eq .Location "Kartuzy" }}selected{{ end }} value="Kartuzy">Kartuzy</option>
-                <option {{ if eq .Location "Somonino" }}selected{{ end }} value="Somonino">Somonino</option>
-            </select>
-            <label>date</label>
-            <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
-            <label>status</label>
-            <select name="status" id="status" >
-                <option {{ if eq .Status "accepted" }}selected{{ end }} value="accepted">accepted</option>
-                <option {{ if eq .Status "done" }}selected{{ end }} value="done">done</option>
-            </select>
-            <label>paid</label>
-            <input type="number" name="paid" min="0" value="{{.Paid}}">
-        </div>
-        <div>
-            <h2>Basket</h2>
-            <ul id="basket">
-            </ul>
-        </div>
-        {{end}}
-        {{with .Catalogue}}
-        <div>
-            <h2>Catalogue</h2>
-            <ul>
-                {{range .}}
-                <li>
-                    {{.Name}} {{.Price}} <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">add</button>
-                </li>
-                {{end}}
-            </ul>
-        </div>
-        {{end}}
-        <button type="submit">submit</button>
-    </form>
-</main>
-<script>
-    function addCake(id, name, amount){
-        var cake = document.getElementById("cake["+id+"]")
-        if (cake != null){
-            var value = Number(cake.getAttribute("value"))
-            cake.setAttribute("value", value+1)
-            return;
+    <main>
+        <form method="post">
+            {{with .Order}}
+                <div>
+                    <h2>Info</h2>
+                    <label>
+                        <input hidden="hidden" name="id" value="{{.ID}}">
+                    </label>
+                    <label>name</label>
+                    <label>
+                        <input type="text" name="name" value="{{.Name}}">
+                    </label>
+                    <label>surname</label>
+                    <label>
+                        <input type="text" name="surname" value="{{.Surname}}">
+                    </label>
+                    <label>phone</label>
+                    <label>
+                        <input type="tel" name="phone" value="{{.Phone}}">
+                    </label>
+                    <label>location</label>
+                    <label>
+                        <select name="location">
+                            <option {{ if eq .Location "Kartuzy" }}selected{{ end }} value="Kartuzy">Kartuzy</option>
+                            <option {{ if eq .Location "Somonino" }}selected{{ end }} value="Somonino">Somonino</option>
+                        </select>
+                    </label>
+                    <label>date</label>
+                    <label>
+                        <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
+                    </label>
+                    <label>status</label>
+                    <label for="status"></label><select name="status" id="status">
+                        <option {{ if eq .Status "accepted" }}selected{{ end }} value="accepted">accepted</option>
+                        <option {{ if eq .Status "done" }}selected{{ end }} value="done">done</option>
+                    </select>
+                    <label>paid</label>
+                    <label>
+                        <input type="number" name="paid" min="0" value="{{.Paid}}">
+                    </label>
+                </div>
+                <div>
+                    <h2>Basket</h2>
+                    <ul id="basket">
+                    </ul>
+                </div>
+            {{end}}
+            {{with .Catalogue}}
+                <div>
+                    <h2>Catalogue</h2>
+                    <ul>
+                        {{range .}}
+                            <li>
+                                {{.Name}} {{.Price}}
+                                <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">add</button>
+                            </li>
+                        {{end}}
+                    </ul>
+                </div>
+            {{end}}
+            <button type="submit">submit</button>
+        </form>
+    </main>
+    <!--suppress JSUnusedGlobalSymbols, JSCheckFunctionSignatures -->
+    <script>
+        function addCake(id, name, amount) {
+            const cake = document.getElementById("cake[" + id + "]");
+            if (cake != null) {
+                const value = Number(cake.getAttribute("value"));
+                cake.setAttribute("value", value + 1)
+                return;
+            }
+            const label = document.createElement("label");
+            label.innerText = name
+            const input = document.createElement("input");
+            input.setAttribute("id", "cake[" + id + "]")
+            input.setAttribute("type", "number")
+            input.setAttribute("min", "0")
+            input.setAttribute("name", "cake[" + id + "]")
+            input.setAttribute("value", amount)
+            const button = document.createElement("button");
+            button.setAttribute("type", "button")
+            button.setAttribute("onClick", "removeCake(" + id + ")")
+            button.innerText = "delete"
+            const li = document.createElement("li");
+            li.appendChild(label)
+            li.appendChild(input)
+            li.appendChild(button)
+            li.setAttribute("id", "li[" + id + "]")
+            const ul = document.getElementById("basket");
+            ul.appendChild(li)
         }
-        var label = document.createElement("label")
-        label.innerText = name
-        var input = document.createElement("input")
-        input.setAttribute("id","cake["+id+"]")
-        input.setAttribute("type", "number")
-        input.setAttribute("min", "0")
-        input.setAttribute("name", "cake["+id+"]")
-        input.setAttribute("value", amount)
-        var button = document.createElement("button")
-        button.setAttribute("type", "button")
-        button.setAttribute("onClick", "removeCake("+id+")")
-        button.innerText= "delete"
-        var li = document.createElement("li")
-        li.appendChild(label)
-        li.appendChild(input)
-        li.appendChild(button)
-        li.setAttribute("id", "li["+id+"]")
-        var ul = document.getElementById("basket")
-        ul.appendChild(li)
-    }
 
-    function removeCake(id){
-        document.getElementById("li["+id+"]").remove()
-    }
+        function removeCake(id) {
+            document.getElementById("li[" + id + "]").remove()
+        }
 
-    {{range .Order.Cakes}}
+        {{range .Order.Cakes}}
         addCake({{.ID}}, '{{.Name}} {{.Price}}', {{.Amount}})
-    {{end}}
-</script>
+        {{end}}
+    </script>
 {{end}}

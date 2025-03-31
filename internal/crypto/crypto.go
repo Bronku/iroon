@@ -15,7 +15,7 @@ func PasswordHash(password, salt string) string {
 func GenerateKey() string {
 	key := [32]byte{}
 	if _, err := rand.Read(key[:]); err != nil {
-		log.Fatal("can't generate a vaild key", err)
+		log.Fatal("can't generate a valid key", err)
 	}
 	return base64.StdEncoding.EncodeToString(key[:])
 }
