@@ -12,7 +12,7 @@ import (
 
 func (h *Server) orders(_ *http.Request) (any, int, error) {
 	//r.URL.Query().Get()
-	orders, err := h.s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
+	orders, err := h.s.GetFilteredOrder("", time.Now(), time.Now().Add(time.Hour*24))
 	data := struct {
 		Today  string
 		Orders []models.Order

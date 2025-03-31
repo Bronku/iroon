@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/Bronku/iroon/internal/models"
@@ -79,26 +78,17 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 }
 
 func (s *Store) GetFilteredOrder(filter string, from, to time.Time) ([]models.Order, error) {
-	if filter == "" {
-		return s.GetTopOrders(from, to)
-	}
 	start := from.Format("2006-01-02") + " 00:00"
 	end := to.Format("2006-01-02") + " 99:99"
 	if to.IsZero() {
 		end = "9999-99-99 99:99"
+	}
+	if filter == "" {
+		query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
+		return s.getOrdersFromQuery(query, start, end)
 	}
 	query := "select id, name, surname, phone, location, order_date, delivery_date, status, paid from order_fts(?) where delivery_date >= ? and delivery_date <= ? order by rank;"
 	return s.getOrdersFromQuery(query, filter, start, end)
-}
-
-func (s *Store) GetTopOrders(from, to time.Time) ([]models.Order, error) {
-	start := from.Format("2006-01-02") + " 00:00"
-	end := to.Format("2006-01-02") + " 99:99"
-	if to.IsZero() {
-		end = "9999-99-99 99:99"
-	}
-	query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
-	return s.getOrdersFromQuery(query, start, end)
 }
 
 func (s *Store) UpdateOrderContents(tx *sql.Tx, newOrder models.Order) error {
@@ -118,12 +108,43 @@ func (s *Store) UpdateOrderContents(tx *sql.Tx, newOrder models.Order) error {
 	return nil
 }
 
-func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
-	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?);"
-	if newOrder.ID != 0 {
-		query = "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = "
-		query += strconv.Itoa(newOrder.ID) + " ;"
+func (s *Store) UpdateOrder(newOrder models.Order) error {
+	_, err := s.GetOrder(newOrder.ID)
+	if err != nil {
+		return err
 	}
+	query := "update customer_order set name = ?, surname = ?, phone = ?, location = ?, order_date = ?, delivery_date = ?, status = ?, paid = ? where id = ?;"
+
+	accepted := newOrder.Accepted.Format("2006-01-02 15:04")
+	date := newOrder.Date.Format("2006-01-02 15:04")
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(query, newOrder.Name, newOrder.Surname, newOrder.Phone, newOrder.Location, accepted, date, newOrder.Status, newOrder.Paid, newOrder.ID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	err = s.UpdateOrderContents(tx, newOrder)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+	return nil
+}
+
+func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
+	if newOrder.ID != 0 {
+		return newOrder.ID, s.UpdateOrder(newOrder)
+	}
+	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?);"
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return 0, err

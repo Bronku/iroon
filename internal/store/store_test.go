@@ -19,7 +19,7 @@ func TestStore(t *testing.T) {
 	if len(cakes) != 0 {
 		t.Errorf("Expected empty cakes list, got: %v", cakes)
 	}
-	orders, err := s.GetTopOrders(time.Now(), time.Now().Add(time.Hour*24))
+	orders, err := s.GetFilteredOrder("", time.Now(), time.Now().Add(time.Hour*24))
 	if err != nil {
 		t.Errorf("Error getting orders: %v", err)
 	}
@@ -170,7 +170,7 @@ func TestStore(t *testing.T) {
 	}
 
 	// get orders
-	orders, err = s.GetTopOrders(time.Time{}, time.Time{})
+	orders, err = s.GetFilteredOrder("", time.Time{}, time.Time{})
 	if err != nil {
 		t.Fatalf("Failed to get all orders after creation: %v", err)
 	}
