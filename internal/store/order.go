@@ -99,6 +99,23 @@ func (s *Store) GetTopOrders(from, to time.Time) ([]models.Order, error) {
 	return s.getOrdersFromQuery(query, start, end)
 }
 
+func (s *Store) UpdateOrderContents(tx *sql.Tx, newOrder models.Order) error {
+	query := "delete from ordered_cake where customer_order = ?;"
+	_, err := tx.Exec(query, newOrder.ID)
+	if err != nil {
+		return err
+	}
+
+	query = "insert into ordered_cake(customer_order, cake, amount) values (?,?,?);"
+	for _, e := range newOrder.Cakes {
+		_, err := tx.Exec(query, newOrder.ID, e.ID, e.Amount)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
 	query := "insert into customer_order(name, surname, phone, location, order_date, delivery_date, status, paid) values (?, ?, ?, ?, ?, ?, ?, ?) returning id;"
 	if newOrder.ID != 0 {
@@ -129,22 +146,10 @@ func (s *Store) SaveOrder(newOrder models.Order) (int, error) {
 		return newOrder.ID, err
 	}
 
-	// remove all ordered_cakes associated with this order before inserting
-	query = "delete from ordered_cake where customer_order = ?;"
-	_, err = tx.Exec(query, newOrder.ID)
+	err = s.UpdateOrderContents(tx, newOrder)
 	if err != nil {
 		_ = tx.Rollback()
 		return newOrder.ID, err
-	}
-
-	// add all ordered_cakes for this order
-	query = "insert into ordered_cake(customer_order, cake, amount) values (?,?,?);"
-	for _, e := range newOrder.Cakes {
-		_, err := tx.Exec(query, newOrder.ID, e.ID, e.Amount)
-		if err != nil {
-			_ = tx.Rollback()
-			return newOrder.ID, err
-		}
 	}
 
 	err = tx.Commit()
