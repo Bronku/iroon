@@ -87,9 +87,9 @@ Zamówienia
     <table>
         {{range .Cakes}}
         <tr>
-            <th>{{.Name}}</th>
-            <th>{{.Price}}</th>
-            <th>{{.Amount}}</th>
+            <th>{{.ID}}<br>{{.Name}}</th>
+            <th>Cena:<br>{{.Price}}</th>
+            <th>Ilość:<br>{{.Amount}}</th>
         </tr>
         {{end}}
     </table>
