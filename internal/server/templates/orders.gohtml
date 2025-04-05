@@ -1,21 +1,23 @@
 {{define "title"}}
-Orders
+Zamówienia
 {{end}}
 {{define "main"}}
 <main>
     <form class="search-container" hx-get="/orders/search" hx-target="#results-table"
         hx-trigger="keyup delay:500ms, change">
         <label>
-            <input type="search" name="q" placeholder="Search orders...">
+            <input type="search" name="q" placeholder="Wyszukaj po numerze zamówienia">
         </label>
 
-        <label for="from">from</label>
-        <input type="date" value="{{.First}}" id="from" name="from">
-        <label for="from">to</label>
-        <label for="to"></label><input type="date" value="{{.Last}}" id="to" name="to">
+        <label>Data początkowa
+            <input type="date" value="{{.First}}" name="from">
+        </label>
+        <label>Data końcowa
+            <input type="date" value="{{.Last}}" name="to">
+        </label>
 
         <div class="htmx-indicator">
-            Searching...
+            Szukanie...
         </div>
 
         <div id="results-table">
@@ -28,25 +30,21 @@ Orders
 {{define "orders-table"}}
 <table id="orders_table">
     <tr>
-        <th></th>
-        <th>Name</th>
-        <th>Surname</th>
-        <th>Phone</th>
-        <th>Location</th>
-        <th>Date</th>
+        <th>Numer zamówienia</th>
+        <th>Klient</th>
+        <th>Lokalizacja</th>
+        <th>Data zamówienia</th>
+        <th>Pozostało do zapłaty</th>
         <th>Status</th>
-        <th>Total</th>
     </tr>
     {{range .}}
     <tr>
-        <th><a href="/order/{{.ID}}">edit</a></th>
-        <th>{{.Name}}</th>
-        <th>{{.Surname}}</th>
-        <th>{{.Phone}}</th>
+        <th><a href="/order/{{.ID}}">{{.ID}}</a></th>
+        <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
         <th>{{.Location}}</th>
         <th>{{.Date.Format "2006-01-02"}}</th>
-        <th>{{.Status}}</th>
         <th>{{.Total}}</th>
+        <th>{{.Status}}</th>
     </tr>
     {{end}}
 </table>
