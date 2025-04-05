@@ -229,6 +229,8 @@ tbody th {
 thead th {
   color: var(--text-light);
   font-weight: 100;
+  font-size: rem;
+  font-size: 0.8rem;
 }
 
 th {
@@ -285,6 +287,11 @@ tr.active {
 a {
   text-decoration: none;
   color: var(--text-light);
+}
+
+tr a {
+  text-decoration: underline;
+  color: var(--primary-color);
 }
 
 
