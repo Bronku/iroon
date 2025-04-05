@@ -47,6 +47,7 @@ func New(store *store.Store) *Server {
 
 	server.routes = map[string]route{
 		"GET /order/":         {server.order, "order", "layout"},
+		"GET /order_info/":    {server.order, "orders", "order_info"},
 		"GET /orders":         {server.orders, "orders", "layout"},
 		"GET /orders/search/": {server.ordersSearch, "orders", "orders-table"},
 		"GET /cake/":          {server.cake, "cake", "layout"},
