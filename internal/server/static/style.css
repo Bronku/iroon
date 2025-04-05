@@ -220,16 +220,18 @@ thead {
   border-bottom: 1px black;
 }
 
-tbody {
-  color: var(--text-light);
+
+tbody th {
+  font-weight: 300;
+  color: var(--text-color);
 }
 
 thead th {
-  font-weight: 500;
+  color: var(--text-light);
+  font-weight: 100;
 }
 
 th {
-  font-weight: 200;
   text-align: left;
   padding: 1rem;
   /* color: var(--primary-dark); */
