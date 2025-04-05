@@ -1,10 +1,10 @@
-
 {{define "title"}}
-    Orders
+Orders
 {{end}}
 {{define "main"}}
 <main>
-    <form class="search-container" hx-get="/orders/search" hx-target="#results-table" hx-trigger="keyup delay:500ms, change">
+    <form class="search-container" hx-get="/orders/search" hx-target="#results-table"
+        hx-trigger="keyup delay:500ms, change">
         <label>
             <input type="search" name="q" placeholder="Search orders...">
         </label>
@@ -26,28 +26,28 @@
 {{end}}
 
 {{define "orders-table"}}
-    <table id="orders_table">
-        <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Phone</th>
-            <th>Location</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total</th>
-        </tr>
-        {{range .}}
-        <tr>
-            <th><a href="/order/{{.ID}}">edit</a></th>
-            <th>{{.Name}}</th>
-            <th>{{.Surname}}</th>
-            <th>{{.Phone}}</th>
-            <th>{{.Location}}</th>
-            <th>{{.Date.Format "2006-01-02"}}</th>
-            <th>{{.Status}}</th>
-            <th>{{.Total}}</th>
-        </tr>
-        {{end}}
-    </table>
-    {{end}}
+<table id="orders_table">
+    <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Phone</th>
+        <th>Location</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Total</th>
+    </tr>
+    {{range .}}
+    <tr>
+        <th><a href="/order/{{.ID}}">edit</a></th>
+        <th>{{.Name}}</th>
+        <th>{{.Surname}}</th>
+        <th>{{.Phone}}</th>
+        <th>{{.Location}}</th>
+        <th>{{.Date.Format "2006-01-02"}}</th>
+        <th>{{.Status}}</th>
+        <th>{{.Total}}</th>
+    </tr>
+    {{end}}</table>
+{{end}}
+
