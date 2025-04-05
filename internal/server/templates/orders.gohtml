@@ -5,47 +5,45 @@ Zamówienia
 <main>
     <form class="search-container" hx-get="/orders/search" hx-target="#results-table"
         hx-trigger="keyup delay:500ms, change">
-        <label>
+        <label class="search-box">
             <input type="search" name="q" placeholder="Wyszukaj po numerze zamówienia">
         </label>
-
         <label>Data początkowa
             <input type="date" value="{{.First}}" name="from">
         </label>
         <label>Data końcowa
             <input type="date" value="{{.Last}}" name="to">
         </label>
-
-        <div class="htmx-indicator">
-            Szukanie...
-        </div>
-
-        <div id="results-table">
-            {{template "orders-table" .Orders}}
-        </div>
     </form>
+    <div id="results-table">
+        {{template "orders-table" .Orders}}
+    </div>
 </main>
 {{end}}
 
 {{define "orders-table"}}
 <table id="orders_table">
-    <tr>
-        <th>Numer zamówienia</th>
-        <th>Klient</th>
-        <th>Lokalizacja</th>
-        <th>Data zamówienia</th>
-        <th>Pozostało do zapłaty</th>
-        <th>Status</th>
-    </tr>
-    {{range .}}
-    <tr>
-        <th><a href="/order/{{.ID}}">{{.ID}}</a></th>
-        <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
-        <th>{{.Location}}</th>
-        <th>{{.Date.Format "2006-01-02"}}</th>
-        <th>{{.Total}}</th>
-        <th>{{.Status}}</th>
-    </tr>
-    {{end}}
+    <thead>
+        <tr>
+            <th>Numer zamówienia</th>
+            <th>Klient</th>
+            <th>Lokalizacja</th>
+            <th>Data zamówienia</th>
+            <th>Pozostało do zapłaty</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .}}
+        <tr>
+            <th><a href="/order/{{.ID}}">{{.ID}}</a></th>
+            <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
+            <th>{{.Location}}</th>
+            <th>{{.Date.Format "2006-01-02"}}</th>
+            <th>{{.Total}}</th>
+            <th>{{.Status}}</th>
+        </tr>
+        {{end}}
+    </tbody>
 </table>
 {{end}}

@@ -10,11 +10,15 @@
 </head>
 
 <body>
-    <header>
-        <h1>{{template "title" .}}</h1>
-    </header>
-    <nav>{{template "nav" .}}</nav>
-    {{template "main" .}}
+    <aside>
+        <nav>{{template "nav" .}}</nav>
+    </aside>
+    <div class="app-body">
+        <header>
+            <h1>{{template "title" .}}</h1>
+        </header>
+        {{template "main" .}}
+    </div>
 </body>
 
 </html>
