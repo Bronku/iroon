@@ -31,3 +31,4 @@ tmp/main
 foo.db.bak
 out
 foo.db
+*.kak*
