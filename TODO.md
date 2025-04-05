@@ -20,7 +20,7 @@
   - [ ] Form validation feedback
 
 - [ ] Price Management
-  - [ ] Calculate order totals
+  - [x] Calculate order totals
   - [x] Handle partial payments
   - [ ] Add payment status tracking
   - [ ] Implement payment validation
