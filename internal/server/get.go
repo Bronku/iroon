@@ -10,13 +10,26 @@ import (
 	"github.com/Bronku/iroon/internal/models"
 )
 
+func monthInterval(y int, m time.Month) (firstDay, lastDay time.Time) {
+	firstDay = time.Date(y, m, 1, 0, 0, 0, 0, time.UTC)
+	lastDay = time.Date(y, m+1, 1, 0, 0, 0, -1, time.UTC)
+	return firstDay, lastDay
+}
+
 func (h *Server) orders(_ *http.Request) (any, int, error) {
-	//r.URL.Query().Get()
-	orders, err := h.s.GetFilteredOrder("", time.Now(), time.Now().Add(time.Hour*24))
+	var (
+		y int
+		m time.Month
+	)
+	y, m, _ = time.Now().Date()
+	first, last := monthInterval(y, m)
+	fmt.Println(first, last)
+	orders, err := h.s.GetFilteredOrder("", first, last)
 	data := struct {
-		Today  string
+		First  string
+		Last   string
 		Orders []models.Order
-	}{Today: time.Now().Format("2006-01-02"), Orders: orders}
+	}{first.Format("2006-01-02"), last.Format("2006-01-02"), orders}
 	return data, http.StatusOK, err
 }
 

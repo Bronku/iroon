@@ -9,10 +9,10 @@ Orders
             <input type="search" name="q" placeholder="Search orders...">
         </label>
 
-        <label for="from">form</label>
-        <input type="date" value="{{.Today}}" id="from" name="from">
+        <label for="from">from</label>
+        <input type="date" value="{{.First}}" id="from" name="from">
         <label for="from">to</label>
-        <label for="to"></label><input type="date" value="{{.Today}}" id="to" name="to">
+        <label for="to"></label><input type="date" value="{{.Last}}" id="to" name="to">
 
         <div class="htmx-indicator">
             Searching...
@@ -48,6 +48,6 @@ Orders
         <th>{{.Status}}</th>
         <th>{{.Total}}</th>
     </tr>
-    {{end}}</table>
+    {{end}}
+</table>
 {{end}}
-
