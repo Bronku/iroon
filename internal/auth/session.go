@@ -50,3 +50,26 @@ func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+func (a *Authenticator) logout(w http.ResponseWriter, r *http.Request) {
+	var cookie http.Cookie
+	cookie.Name = "token"
+	cookie.Value = "nil"
+	cookie.HttpOnly = true
+	cookie.SameSite = http.SameSiteStrictMode
+	cookie.Path = "/"
+	http.SetCookie(w, &cookie)
+	http.Redirect(w, r, "/", http.StatusFound)
+	c, err := r.Cookie("token")
+	if err != nil {
+		return
+	}
+	_, ok := a.sessions[c.Value]
+	if !ok {
+		return
+	}
+	fmt.Println("removing session")
+	delete(a.sessions, c.Value)
+	err = a.s.RevokeSession(c.Value)
+	fmt.Println(err)
+}

@@ -30,7 +30,7 @@
 - [x] Authentication System
   - [x] Persistent logins across server restarts
   - [x] User login
-  - [ ] User logout
+  - [x] User logout
   - [ ] Role-based access (admin, staff)
   - [x] Password hashing
 - [ ] CSRF Protection

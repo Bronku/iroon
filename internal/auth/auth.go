@@ -43,6 +43,7 @@ func (a *Authenticator) Middleware(in http.Handler) http.Handler {
 	handler := http.NewServeMux()
 	handler.HandleFunc("GET /login", getLogin)
 	handler.HandleFunc("POST /login", a.login)
+	handler.HandleFunc("GET /logout", a.logout)
 	handler.Handle("/", a.ensureAuth(in))
 	return handler
 }
