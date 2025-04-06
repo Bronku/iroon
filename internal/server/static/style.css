@@ -219,7 +219,11 @@ table {
 
 thead {
   border-bottom: 1px solid var(--border-color);
-  position: relative;
+  background-color: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: 0 2px 0 var(--border-color);
 }
 
 tbody th {

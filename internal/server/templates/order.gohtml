@@ -11,7 +11,7 @@
             {{with .Order}}
             <div class="order-contents">
                 <div>
-                    <h2>Info</h2>
+                    <h2>Dane zamówienia</h2>
                     <label>
                         <input hidden="hidden" name="id" value="{{.ID}}">
                     </label>
@@ -43,18 +43,18 @@
                         <input type="number" name="paid" min="0" value="{{.Paid}}">
                     </label>
                 </div>
-                <div class="scrollable">
+                <div>
                     <h2>Dodane Ciasta</h2>
-                    <ul id="basket">
+                    <ul id="basket"  class="scrollable">
                     </ul>
                 </div>
                 <button type="submit">Zapisz</button>
             </div>
             {{end}}
             {{with .Catalogue}}
-                <div class="scrollable">
+                <div >
                     <h2>Katalog</h2>
-                    <ul>
+                    <ul class="scrollable">
                         {{range .}}
                             <li>
                                 {{.Name}} {{.Price}}
