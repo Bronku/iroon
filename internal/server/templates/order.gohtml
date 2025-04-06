@@ -58,7 +58,7 @@
                         {{range .}}
                             <li>
                                 {{.Name}} {{.Price}}
-                                <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">dodaj</button>
+                                <button type=button onClick="addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', 1)">dodaj</button>
                             </li>
                         {{end}}
                     </ul>
@@ -100,7 +100,7 @@
         }
 
         {{range .Order.Cakes}}
-        addCake({{.ID}}, '{{.Name}} {{.Price}}', {{.Amount}})
+        addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', {{.Amount}})
         {{end}}
     </script>
 {{end}}
