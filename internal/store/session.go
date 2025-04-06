@@ -12,6 +12,12 @@ func (s *Store) AddSession(token, userName string, expiration time.Time) error {
 	return err
 }
 
+func (s *Store) RevokeSession(token string) error {
+	query := "delete from session where token = ?;"
+	_, err := s.db.Exec(query, token)
+	return err
+}
+
 func (s *Store) CleanSessions() error {
 	now := time.Now().Format("2006-01-02 15:04")
 	query := "delete from session where expiration < ?;"

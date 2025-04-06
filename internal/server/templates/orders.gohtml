@@ -1,53 +1,84 @@
-
 {{define "title"}}
-    Orders
+Zamówienia
 {{end}}
 {{define "main"}}
 <main>
-    <form class="search-container" hx-get="/orders/search" hx-target="#results-table" hx-trigger="keyup delay:500ms, change">
-        <label>
-            <input type="search" name="q" placeholder="Search orders...">
+    <form class="search-container" hx-get="/orders/search" hx-target="#results-table"
+        hx-trigger="keyup delay:500ms, change">
+        <label class="search-box">
+            <input type="search" name="q" placeholder="Wyszukaj po numerze zamówienia">
         </label>
-
-        <label for="from">form</label>
-        <input type="date" value="{{.Today}}" id="from" name="from">
-        <label for="from">to</label>
-        <label for="to"></label><input type="date" value="{{.Today}}" id="to" name="to">
-
-        <div class="htmx-indicator">
-            Searching...
-        </div>
-
-        <div id="results-table">
-            {{template "orders-table" .Orders}}
-        </div>
+        <label>Data początkowa
+            <input type="date" value="{{.First}}" name="from">
+        </label>
+        <label>Data końcowa
+            <input type="date" value="{{.Last}}" name="to">
+        </label>
     </form>
+    <div id="results-table">
+        {{template "orders-table" .Orders}}
+    </div>
 </main>
-{{end}}
+<style>
+    .hidden {
+        display: none;
+    }
 
+    .active {
+        background-color: #e6f2ff;
+    }
+</style>
+<script>
+    function toggleDetails(row) {
+        const detailsRow=row.nextElementSibling;
+        if(detailsRow.classList.contains('hidden')) {
+            detailsRow.classList.remove('hidden');
+            return;
+        }
+        detailsRow.classList.add('hidden');
+    }
+</script>
+{{end}}
 {{define "orders-table"}}
-    <table id="orders_table">
+<table id="orders_table">
+    <thead>
         <tr>
-            <th></th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Phone</th>
-            <th>Location</th>
-            <th>Date</th>
+            <th>Numer zamówienia</th>
+            <th>Klient</th>
+            <th>Lokalizacja</th>
+            <th>Data zamówienia</th>
+            <th>Pozostało do zapłaty</th>
             <th>Status</th>
-            <th>Total</th>
         </tr>
+    </thead>
+    <tbody>
         {{range .}}
-        <tr>
-            <th><a href="/order/{{.ID}}">edit</a></th>
-            <th>{{.Name}}</th>
-            <th>{{.Surname}}</th>
-            <th>{{.Phone}}</th>
+        <tr class="clickable" onclick="toggleDetails(this)">
+            <th><a href="/order/{{.ID}}">#{{.ID}}</a></th>
+            <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
             <th>{{.Location}}</th>
             <th>{{.Date.Format "2006-01-02"}}</th>
+            <th>{{.Total}} PLN</th>
             <th>{{.Status}}</th>
-            <th>{{.Total}}</th>
+        </tr>
+        <tr class="hidden">
+            <td colspan="6" class="details-content">
+            {{template "order_info" .}}
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{end}}
+{{define "order_info"}}
+    <table>
+        {{range .Cakes}}
+        <tr>
+            <th>{{.Name}}<br><small>ID: {{.ID}}</small></th>
+            <th><small>Cena:</small><br>{{.Price}} PLN</th>
+            <th><small>Ilość:</small><br>{{.Amount}}</th>
+            <th><small>Razem:</small><br>{{.Total}} PLN</th>
         </tr>
         {{end}}
     </table>
-    {{end}}
+{{end}}

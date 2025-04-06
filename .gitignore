@@ -32,3 +32,4 @@ foo.db.bak
 out
 foo.db
 *.kak*
+.air.toml
