@@ -1,71 +1,71 @@
 {{define "title"}}
-    Order {{.Order.ID}}
+    {{if .Order.ID}}
+    Edytuj zamówienie #{{.Order.ID}}
+    {{else}}
+    Nowe zamówienie
+    {{end}}
 {{end}}
 {{define "main"}}
     <main>
-        <form method="post">
+        <form method="post" class="order">
             {{with .Order}}
+            <div class="order-contents">
                 <div>
                     <h2>Info</h2>
                     <label>
                         <input hidden="hidden" name="id" value="{{.ID}}">
                     </label>
-                    <label>name</label>
-                    <label>
+                    <label>Imię
                         <input type="text" name="name" value="{{.Name}}">
                     </label>
-                    <label>surname</label>
-                    <label>
+                    <label>Nazwisko
                         <input type="text" name="surname" value="{{.Surname}}">
                     </label>
-                    <label>phone</label>
-                    <label>
+                    <label>Numer telefonu
                         <input type="tel" name="phone" value="{{.Phone}}">
                     </label>
-                    <label>location</label>
-                    <label>
+                    <label>Lokalizacja
                         <select name="location">
                             <option {{ if eq .Location "Kartuzy" }}selected{{ end }} value="Kartuzy">Kartuzy</option>
                             <option {{ if eq .Location "Somonino" }}selected{{ end }} value="Somonino">Somonino</option>
                         </select>
                     </label>
-                    <label>date</label>
-                    <label>
+                    <label>Data dostawy
                         <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
                     </label>
-                    <label>status</label>
-                    <label for="status"></label><select name="status" id="status">
-                        <option {{ if eq .Status "accepted" }}selected{{ end }} value="accepted">accepted</option>
-                        <option {{ if eq .Status "done" }}selected{{ end }} value="done">done</option>
-                    </select>
-                    <label>paid</label>
-                    <label>
+                    <label>Status
+                        <select name="status">
+                            <option {{ if eq .Status "accepted" }}selected{{ end }} value="accepted">accepted</option>
+                            <option {{ if eq .Status "done" }}selected{{ end }} value="done">done</option>
+                        </select>
+                    </label>
+                    <label>Zaliczka
                         <input type="number" name="paid" min="0" value="{{.Paid}}">
                     </label>
                 </div>
                 <div>
-                    <h2>Basket</h2>
+                    <h2>Dodane Ciasta</h2>
                     <ul id="basket">
                     </ul>
                 </div>
+                <button type="submit">Zapisz</button>
+            </div>
             {{end}}
             {{with .Catalogue}}
                 <div>
-                    <h2>Catalogue</h2>
+                    <h2>Katalog</h2>
                     <ul>
                         {{range .}}
                             <li>
                                 {{.Name}} {{.Price}}
-                                <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">add</button>
+                                <button type=button onClick="addCake({{.ID}},'{{.Name}} {{.Price}}', 1)">dodaj</button>
                             </li>
                         {{end}}
                     </ul>
                 </div>
             {{end}}
-            <button type="submit">submit</button>
         </form>
     </main>
-    <!--suppress JSUnusedGlobalSymbols, JSCheckFunctionSignatures -->
     <script>
         function addCake(id, name, amount) {
             const cake = document.getElementById("cake[" + id + "]");
@@ -85,7 +85,7 @@
             const button = document.createElement("button");
             button.setAttribute("type", "button")
             button.setAttribute("onClick", "removeCake(" + id + ")")
-            button.innerText = "delete"
+            button.innerText = "usuń"
             const li = document.createElement("li");
             li.appendChild(label)
             li.appendChild(input)

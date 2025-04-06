@@ -194,7 +194,7 @@ main {
   min-width: 160px;
 }
 
-input:focus {
+.search-container input:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
@@ -294,6 +294,18 @@ tr a {
   text-decoration: underline;
   color: var(--primary-color);
 }
+
+.order {
+  display: flex;
+  flex-direction: row;
+}
+
+.order div {
+  display: flex;
+  flex-direction: column;
+}
+
+
 
 
 /* Responsive adjustments */
