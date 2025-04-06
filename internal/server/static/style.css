@@ -296,17 +296,27 @@ tr a {
 }
 
 .order {
+  flex-grow: 1;
   display: flex;
   flex-direction: row;
+  width: 100%;
+  padding: 1.5rem;
+  background-color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  height: 100%;
 }
 
 .order div {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
 
-
-
+.order-contents>*:first-child,
+.order-contents>*:last-child {
+  flex-grow: 0;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
