@@ -9,6 +9,7 @@
   --border-color: #e4e9ec;
   --hover-color: #f5f5f5;
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --bottom-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.1);
   --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --transition: 0.2s ease;
   --radius: 6px;
@@ -204,22 +205,21 @@ input:focus {
   background-color: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  /* overflow: hidden; */
   margin-top: 1rem;
 }
 
 table {
   width: 100%;
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0;
   font-size: 0.95rem;
 }
 
 thead {
-  /* background-color: var(--primary-light); */
-  border-bottom: 1px black;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
 }
-
 
 tbody th {
   font-weight: 300;
@@ -231,7 +231,9 @@ thead th {
   font-weight: 100;
   font-size: rem;
   font-size: 0.8rem;
+  /* box-shadow: var(--bottom-shadow); */
 }
+
 
 th {
   text-align: left;
@@ -241,7 +243,6 @@ th {
 
 td {
   padding: 1rem;
-  border-top: 1px solid var(--border-color);
 }
 
 th:first-child,
