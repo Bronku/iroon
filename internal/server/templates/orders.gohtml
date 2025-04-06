@@ -15,7 +15,7 @@ Zamówienia
             <input type="date" value="{{.Last}}" name="to">
         </label>
     </form>
-    <div id="results-table">
+    <div id="results-table" class="scrollable">
         {{template "orders-table" .Orders}}
     </div>
 </main>

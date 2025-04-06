@@ -43,7 +43,7 @@
                         <input type="number" name="paid" min="0" value="{{.Paid}}">
                     </label>
                 </div>
-                <div>
+                <div class="scrollable">
                     <h2>Dodane Ciasta</h2>
                     <ul id="basket">
                     </ul>
@@ -52,7 +52,7 @@
             </div>
             {{end}}
             {{with .Catalogue}}
-                <div>
+                <div class="scrollable">
                     <h2>Katalog</h2>
                     <ul>
                         {{range .}}
