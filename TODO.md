@@ -18,6 +18,7 @@
   - [ ] Date validation (no past dates)
   - [ ] Cake amount limits
   - [ ] Form validation feedback
+  - [ ] Prevent enter from submitting the form
 
 - [ ] Price Management
   - [x] Calculate order totals
