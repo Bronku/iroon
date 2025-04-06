@@ -45,6 +45,10 @@
                 </div>
                 <div>
                     <h2>Dodane Ciasta</h2>
+                    <div class="scrollable">
+                        <table id="basket_table" >
+                        </table>
+                    </div>
                     <ul id="basket"  class="scrollable">
                     </ul>
                 </div>
@@ -73,8 +77,26 @@
             {{end}}
         </form>
     </main>
+    <template id="basket_element_template">
+        <tr>
+            <th>Name</th>
+            <th>
+                <label>
+                    <input type="text">
+                </label>
+            </th>
+            <th>
+                <button type=button onClick="">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </th>
+        </tr>
+    </template>
     <script>
         function addCake(id, name, amount) {
+            let template = document.getElementById("basket_element_template");
+            let tr = template.content.cloneNode(true);
+            console.log(tr);
             const cake = document.getElementById("cake[" + id + "]");
             if (cake != null) {
                 const value = Number(cake.getAttribute("value"));
