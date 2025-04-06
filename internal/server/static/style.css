@@ -328,6 +328,13 @@ tr a {
   flex-grow: 0;
 }
 
+.order label {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
 .scrollable {
   overflow-y: auto;
   min-height: 0;
