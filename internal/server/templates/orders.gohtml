@@ -29,25 +29,13 @@ Zamówienia
     }
 </style>
 <script>
-    function toggleDetails(row,event) {
-        // Access the next row (details row)
+    function toggleDetails(row) {
         const detailsRow=row.nextElementSibling;
-
-        // Check if the details row is hidden
         if(detailsRow.classList.contains('hidden')) {
-            // If hidden, show it (HTMX will populate it)
             detailsRow.classList.remove('hidden');
-            row.classList.add('active');
-        } else {
-            // If visible, hide it
-            detailsRow.classList.add('hidden');
-            row.classList.remove('active');
-
-            // Prevent HTMX from making a request when we're just hiding
-            if(event) {
-                event.stopPropagation();
-            }
+            return;
         }
+        detailsRow.classList.add('hidden');
     }
 </script>
 {{end}}
@@ -65,9 +53,8 @@ Zamówienia
     </thead>
     <tbody>
         {{range .}}
-        <tr class="clickable" hx-get="/order_info/{{.ID}}" hx-target="next tr" hx-swap="innerHTML"
-            onclick="toggleDetails(this, event)">
-            <th><a href="/order/{{.ID}}">{{.ID}}</a></th>
+        <tr class="clickable" onclick="toggleDetails(this)">
+            <th><a href="/order/{{.ID}}">#{{.ID}}</a></th>
             <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
             <th>{{.Location}}</th>
             <th>{{.Date.Format "2006-01-02"}}</th>
@@ -75,15 +62,15 @@ Zamówienia
             <th>{{.Status}}</th>
         </tr>
         <tr class="hidden">
-            <td colspan="6" class="details-content"></td>
+            <td colspan="6" class="details-content">
+            {{template "order_info" .}}
+            </td>
         </tr>
         {{end}}
     </tbody>
 </table>
 {{end}}
 {{define "order_info"}}
-{{with .Order}}
-<td colspan="6" class="details-content">
     <table>
         {{range .Cakes}}
         <tr>
@@ -93,6 +80,4 @@ Zamówienia
         </tr>
         {{end}}
     </table>
-</td>
-{{end}}
 {{end}}
