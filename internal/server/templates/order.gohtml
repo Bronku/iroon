@@ -62,10 +62,10 @@
                         <table>
                             {{range .}}
                             <tr>
-                                <th>{{.Name}}<br><small>{{.Category}}</small></th>
+                                <th>{{.Name}}<br><small>{{.Category}} (#{{.ID}})</small></th>
                                 <th>{{.Price}}PLN</th>
                                 <th>
-                                    <button type=button onClick="addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', 1)">
+                                    <button type=button onClick="addCake({{.ID}},{{.Name}}, {{.Price}}, 1)">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>
                                 </th>
@@ -79,14 +79,16 @@
     </main>
     <template id="basket_element_template">
         <tr>
-            <th>Name</th>
+            <th class="cake-name">Name</th>
+            <th class="cake-price">Price</th>
             <th>
                 <label>
-                    <input type="text">
+                    <input type="number" min="0">
                 </label>
             </th>
+            <th class="cake-total">Total</th>
             <th>
-                <button type=button onClick="">
+                <button type=button>
                     <i class="fa-solid fa-minus"></i>
                 </button>
             </th>
@@ -94,7 +96,7 @@
     </template>
     <script>
         {{range .Order.Cakes}}
-        addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', {{.Amount}})
+        addCake({{.ID}},{{.Name}}, {{.Price}}, {{.Amount}})
         {{end}}
     </script>
 {{end}}

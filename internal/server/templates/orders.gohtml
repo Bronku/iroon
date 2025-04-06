@@ -28,16 +28,6 @@ Zamówienia
         background-color: #e6f2ff;
     }
 </style>
-<script>
-    function toggleDetails(row) {
-        const detailsRow=row.nextElementSibling;
-        if(detailsRow.classList.contains('hidden')) {
-            detailsRow.classList.remove('hidden');
-            return;
-        }
-        detailsRow.classList.add('hidden');
-    }
-</script>
 {{end}}
 {{define "orders-table"}}
 <table id="orders_table">
