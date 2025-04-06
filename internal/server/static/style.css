@@ -323,6 +323,18 @@ tr a {
   flex-shrink: 0;
 }
 
+.order-contents>div:last-child {
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
+.order-contents>div:last-child>label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .order-contents>*:first-child,
 .order-contents>*:last-child {
   flex-grow: 0;
