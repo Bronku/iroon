@@ -52,16 +52,23 @@
             </div>
             {{end}}
             {{with .Catalogue}}
-                <div >
+                <div>
                     <h2>Katalog</h2>
-                    <ul class="scrollable">
-                        {{range .}}
-                            <li>
-                                {{.Name}} {{.Price}}
-                                <button type=button onClick="addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', 1)">dodaj</button>
-                            </li>
-                        {{end}}
-                    </ul>
+                    <div class="scrollable">
+                        <table>
+                            {{range .}}
+                            <tr>
+                                <th>{{.Name}}<br><small>{{.Category}}</small></th>
+                                <th>{{.Price}}PLN</th>
+                                <th>
+                                    <button type=button onClick="addCake({{.ID}},'{{.Name}} ({{.Price}}PLN)', 1)">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </th>
+                            </tr>
+                            {{end}}
+                        </table>
+                    </div>
                 </div>
             {{end}}
         </form>
