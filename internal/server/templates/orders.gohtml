@@ -58,7 +58,7 @@ Zamówienia
             <th>{{.Surname}} {{.Name}} {{.Phone}}</th>
             <th>{{.Location}}</th>
             <th>{{.Date.Format "2006-01-02"}}</th>
-            <th>{{.Total}}</th>
+            <th>{{.Total}} PLN</th>
             <th>{{.Status}}</th>
         </tr>
         <tr class="hidden">
@@ -74,9 +74,10 @@ Zamówienia
     <table>
         {{range .Cakes}}
         <tr>
-            <th>{{.ID}}<br>{{.Name}}</th>
-            <th>Cena:<br>{{.Price}}</th>
-            <th>Ilość:<br>{{.Amount}}</th>
+            <th>{{.Name}}<br><small>ID: {{.ID}}</small></th>
+            <th><small>Cena:</small><br>{{.Price}} PLN</th>
+            <th><small>Ilość:</small><br>{{.Amount}}</th>
+            <th><small>Razem:</small><br>{{.Total}} PLN</th>
         </tr>
         {{end}}
     </table>

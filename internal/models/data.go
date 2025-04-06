@@ -31,3 +31,7 @@ func (o *Order) Total() int {
 	}
 	return out
 }
+
+func (c *Cake) Total() int {
+	return c.Amount * c.Price
+}
