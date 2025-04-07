@@ -18,7 +18,12 @@
   - [ ] Date validation (no past dates)
   - [ ] Cake amount limits
   - [ ] Form validation feedback
+
+- [ ] Order Form
+  - [ ] table headers
+  - [ ] padding
   - [ ] Prevent enter from submitting the form
+  - [ ] fix basket scrolling
 
 - [ ] Price Management
   - [x] Calculate order totals
