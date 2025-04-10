@@ -405,4 +405,8 @@ button p {
     height: 2.5rem;
     font-size: 1.2rem;
   }
+
+  .order {
+    flex-direction: column;
+  }
 }
