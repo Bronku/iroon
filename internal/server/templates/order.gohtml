@@ -59,6 +59,13 @@
                         <p id="total-price">100PLN</p>
                     </label>
                     <button type="submit">
+                        <p>
+                        {{if .ID}}
+                        Zapisz zmiany
+                        {{else}}
+                        Dodaj zamówienie
+                        {{end}}
+                        </p>
                         <i class="fa-solid fa-floppy-disk"></i>
                     </button>
                 </div>
