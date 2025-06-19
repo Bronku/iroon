@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Bronku/iroon/internal/logging"
+	"github.com/Bronku/iroon/logging"
 )
 
 //go:embed templates/*

@@ -3,8 +3,8 @@ package store
 import (
 	"errors"
 
-	"github.com/Bronku/iroon/internal/crypto"
-	"github.com/Bronku/iroon/internal/models"
+	"github.com/Bronku/iroon/crypto"
+	"github.com/Bronku/iroon/models"
 )
 
 func (s *Store) AddUser(login, password string) error {

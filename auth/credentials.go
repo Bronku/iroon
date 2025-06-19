@@ -3,7 +3,7 @@ package auth
 import (
 	"errors"
 
-	"github.com/Bronku/iroon/internal/crypto"
+	"github.com/Bronku/iroon/crypto"
 )
 
 func (a *Authenticator) verifyCredentials(login, password string) error {

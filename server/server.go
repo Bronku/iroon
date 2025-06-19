@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Bronku/iroon/internal/store"
+	"github.com/Bronku/iroon/store"
 )
 
 type Server struct {

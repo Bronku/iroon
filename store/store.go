@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/Bronku/iroon/internal/models"
+	"github.com/Bronku/iroon/models"
 	_ "github.com/knaka/go-sqlite3-fts5"
 	_ "github.com/mattn/go-sqlite3"
 )

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Bronku/iroon/internal/models"
+	"github.com/Bronku/iroon/models"
 )
 
 // #todo update labels in templates

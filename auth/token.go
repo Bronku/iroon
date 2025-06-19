@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Bronku/iroon/internal/crypto"
-	"github.com/Bronku/iroon/internal/models"
+	"github.com/Bronku/iroon/crypto"
+	"github.com/Bronku/iroon/models"
 )
 
 func (a *Authenticator) newSession(user string) (http.Cookie, error) {
