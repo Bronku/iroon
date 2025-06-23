@@ -11,6 +11,8 @@
   - [x] Add database migrations
   - [x] Add database caching
 
+- [ ] HTTPS
+- [ ] Storing default login in config file/env variable 
 - [ ] Input Validation
 
   - [ ] Phone number format validation
