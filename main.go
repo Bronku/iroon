@@ -19,8 +19,8 @@ func main() {
 	defer h.Close()
 
 	var handler http.Handler = h
-	handler = auth.New(s).Middleware(handler)
 	handler = logging.Middleware(handler)
+	handler = auth.New(s).Middleware(handler)
 	fmt.Println("starting server")
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }
