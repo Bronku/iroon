@@ -5,9 +5,6 @@ Zamówienia
 <main>
     <form class="search-container" hx-get="/orders/search" hx-target="#results-table"
         hx-trigger="keyup delay:500ms, change">
-        <label class="search-box">
-            <input type="search" name="q" placeholder="Wyszukaj po numerze zamówienia">
-        </label>
         <label>Data początkowa
             <input type="date" value="{{.First}}" name="from">
         </label>

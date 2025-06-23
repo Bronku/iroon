@@ -26,6 +26,7 @@ func OpenStore(filename string) *Store {
 
 	out.loadMigrations()
 	out.cakes, err = out.loadCakes()
+	log.Println(out.cakes)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -20,6 +20,7 @@ func (s *Store) loadFile(file string) {
 	if version <= s.version() {
 		return
 	}
+	log.Println("migration: ", file)
 
 	query, _ := migrations.ReadFile("migrations/" + file)
 	_, err = s.db.Exec(string(query))

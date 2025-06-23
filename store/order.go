@@ -77,18 +77,14 @@ func (s *Store) GetOrder(id int) (models.Order, error) {
 	return out[0], nil
 }
 
-func (s *Store) GetFilteredOrder(filter string, from, to time.Time) ([]models.Order, error) {
+func (s *Store) GetOrders(from, to time.Time) ([]models.Order, error) {
 	start := from.Format("2006-01-02") + " 00:00"
 	end := to.Format("2006-01-02") + " 99:99"
 	if to.IsZero() {
 		end = "9999-99-99 99:99"
 	}
-	if filter == "" {
-		query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
-		return s.getOrdersFromQuery(query, start, end)
-	}
-	query := "select id, name, surname, phone, location, order_date, delivery_date, status, paid from order_fts(?) where delivery_date >= ? and delivery_date <= ? order by rank;"
-	return s.getOrdersFromQuery(query, filter, start, end)
+	query := "select * from customer_order where status != 'done' and delivery_date >= ? and delivery_date <= ? ;"
+	return s.getOrdersFromQuery(query, start, end)
 }
 
 func (s *Store) UpdateOrderContents(tx *sql.Tx, newOrder models.Order) error {

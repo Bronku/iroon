@@ -24,7 +24,7 @@ func (h *Server) orders(_ *http.Request) (any, int, error) {
 	y, m, _ = time.Now().Date()
 	first, last := monthInterval(y, m)
 	fmt.Println(first, last)
-	orders, err := h.s.GetFilteredOrder("", first, last)
+	orders, err := h.s.GetOrders(first, last)
 	data := struct {
 		First  string
 		Last   string
@@ -34,7 +34,6 @@ func (h *Server) orders(_ *http.Request) (any, int, error) {
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
-	q := r.URL.Query().Get("q")
 	from, err := time.Parse("2006-01-02", r.URL.Query().Get("from"))
 	if err != nil {
 		from = time.Time{}
@@ -44,7 +43,7 @@ func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 		to = time.Time{}
 	}
 	fmt.Println(from, to)
-	data, err := h.s.GetFilteredOrder(q, from, to)
+	data, err := h.s.GetOrders(from, to)
 	return data, http.StatusOK, err
 }
 
