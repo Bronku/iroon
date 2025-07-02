@@ -5,7 +5,7 @@ import "time"
 type Cake struct {
 	Name         string
 	ID           int
-	Price        int
+	Price        int // increments of 0.01
 	Amount       int
 	Category     string
 	Availability string

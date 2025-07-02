@@ -12,8 +12,20 @@
   - [x] Add database caching
 
 - [ ] HTTPS
-- [ ] Storing default login in config file/env variable 
+- [ ] Storing default login in config file/env variable
 - [ ] Input Validation
+- [ ] Saparate routing logic, and http handlers
+- [ ] Better error Handling
+- [ ] Migrate to gorm -> simplification of codebase
+- [ ] Proper session auth ?
+- [ ] /orders/search htmx trigger `<form class="search-container" hx-get="/orders/search" ...>`
+- [ ] orders.gohtml remove inline css
+- [ ] move style for order_fts into a separate css file
+- [ ] containerization
+- [ ] ci/cd pipeline (github actions)
+- [ ] monitoring (prometheus, grafana)
+- [ ] structured logs (JSON format), log formatter
+
 
   - [ ] Phone number format validation
   - [ ] Required fields validation
