@@ -8,16 +8,12 @@ Cakes
             <th></th>
             <th>Name</th>
             <th>Price</th>
-            <th>Category</th>
-            <th>Availability</th>
         </tr>
         {{range .}}
         <tr>
             <th><a href="/cake/{{.ID}}">edit</a></th>
             <th>{{.Name}}</th>
             <th>{{.Price}}</th>
-            <th>{{.Category}}</th>
-            <th>{{.Availability}}</th>
         </tr>
         {{end}}
     </table>

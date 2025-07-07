@@ -31,7 +31,11 @@
                         </select>
                     </label>
                     <label>Data dostawy
-                        <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}">
+                        {{if .ID}}
+                        <input type="date" name="date" value="{{.Date.Format "2006-01-02"}}" required>
+                        {{else}}
+                        <input type="date" name="date" required>
+                        {{end}}
                     </label>
                     <label>Status
                         <select name="status">
@@ -40,7 +44,7 @@
                         </select>
                     </label>
                     <label>Zaliczka
-                        <input type="number" name="paid" min="0" value="{{.Paid}}">
+                        <input type="number" name="paid" min="0" value="{{.Prepaid}}">
                     </label>
                 </div>
                 <div>
@@ -52,7 +56,7 @@
                     <ul id="basket"  class="scrollable">
                     </ul>
                 </div>
-                
+
                 <div>
                     <label>
                         <small>Total:</small><br>
@@ -69,7 +73,7 @@
                         <table>
                             {{range .}}
                             <tr>
-                                <th>{{.Name}}<br><small>{{.Category}} (#{{.ID}})</small></th>
+                                <th>{{.Name}}<br><small>#{{.ID}}</small></th>
                                 <th>{{.Price}}PLN</th>
                                 <th>
                                     <button type=button onClick="addCake({{.ID}},{{.Name}}, {{.Price}}, 1)">
@@ -102,8 +106,8 @@
         </tr>
     </template>
     <script>
-        {{range .Order.Cakes}}
-        addCake({{.ID}},{{.Name}}, {{.Price}}, {{.Amount}})
+        {{range .Order.OrderItems}}
+        addCake({{.ProductID}},{{.Product.Name}}, {{.Product.Price}}, {{.Amount}})
         {{end}}
     </script>
 {{end}}

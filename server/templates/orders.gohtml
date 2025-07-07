@@ -59,10 +59,10 @@ Zamówienia
 {{end}}
 {{define "order_info"}}
     <table>
-        {{range .Cakes}}
+        {{range .OrderItems}}
         <tr>
-            <th>{{.Name}}<br><small>ID: {{.ID}}</small></th>
-            <th><small>Cena:</small><br>{{.Price}} PLN</th>
+            <th>{{.Product.Name}}<br><small>ID: {{.ProductID}}</small></th>
+            <th><small>Cena:</small><br>{{.Product.Price}} PLN</th>
             <th><small>Ilość:</small><br>{{.Amount}}</th>
             <th><small>Razem:</small><br>{{.Total}} PLN</th>
         </tr>

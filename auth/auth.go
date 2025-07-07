@@ -2,41 +2,41 @@ package auth
 
 import (
 	_ "embed"
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 
+	"github.com/Bronku/iroon/crypto"
 	"github.com/Bronku/iroon/models"
-	"github.com/Bronku/iroon/store"
+	"gorm.io/gorm"
 )
 
 type Authenticator struct {
-	sessions map[string]models.Token
-	s        *store.Store
+	db *gorm.DB
 }
 
-func New(s *store.Store) *Authenticator {
-	var out Authenticator
-	var err error
-	out.s = s
-	out.sessions, err = s.GetSessions()
-	//fmt.Println(out.sessions)
+func New(db *gorm.DB) Authenticator {
+	err := db.AutoMigrate(&models.User{}, &models.Token{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to initialize authenticator", err)
 	}
-	return &out
+	return Authenticator{db}
 }
 
-func (a *Authenticator) ensureAuth(in http.Handler) http.Handler {
-	fmt.Println("ensureAuth called")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := a.getSession(r)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-		in.ServeHTTP(w, r)
-	})
+// #todo only used once, maybe remove it entierly later
+func (a *Authenticator) verifyCredentials(login, password string) error {
+	var user models.User
+
+	result := a.db.First(&user, "login = ?", login)
+	if result.Error != nil {
+		return errors.New("user with this login doesn't exist")
+	}
+
+	hash := crypto.PasswordHash(password, user.Salt)
+	if hash == user.Password {
+		return nil
+	}
+	return errors.New("wrong credentials")
 }
 
 func (a *Authenticator) Middleware(in http.Handler) http.Handler {
@@ -44,6 +44,13 @@ func (a *Authenticator) Middleware(in http.Handler) http.Handler {
 	handler.HandleFunc("GET /login", getLogin)
 	handler.HandleFunc("POST /login", a.login)
 	handler.HandleFunc("GET /logout", a.logout)
-	handler.Handle("/", a.ensureAuth(in))
+	handler.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, err := a.getSession(r)
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		in.ServeHTTP(w, r)
+	})
 	return handler
 }

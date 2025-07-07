@@ -2,10 +2,10 @@ package auth
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/Bronku/iroon/crypto"
 	"github.com/Bronku/iroon/models"
 )
 
@@ -14,62 +14,62 @@ func (a *Authenticator) getSession(r *http.Request) (models.Token, error) {
 	if err != nil {
 		return models.Token{}, err
 	}
-	session, ok := a.sessions[c.Value]
-	if !ok {
+	var session models.Token
+	result := a.db.First(&session, c.Value)
+	if result.Error != nil {
 		return models.Token{}, errors.New("session not found")
 	}
 	if time.Since(session.Expiration) > 0 {
-		delete(a.sessions, c.Value)
-		err := a.s.CleanSessions()
-		if err != nil {
-			fmt.Println("error cleaning the sessions", err)
-		}
+		a.db.Delete(&session)
 		return models.Token{}, errors.New("session expired")
 	}
 	return session, nil
 }
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
+	r.ParseForm()
 	login := r.PostFormValue("login")
 	password := r.PostFormValue("password")
 	if a.verifyCredentials(login, password) != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	cookie, err := a.newSession(login)
-	if err != nil {
-		w.Header().Set("content-type", "text/html")
-		fmt.Fprint(w, "internal server error")
-		return
-	}
+	cookie := a.newSession(login)
 	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (a *Authenticator) logout(w http.ResponseWriter, r *http.Request) {
-	var cookie http.Cookie
-	cookie.Name = "token"
-	cookie.Value = "nil"
-	cookie.HttpOnly = true
-	cookie.SameSite = http.SameSiteStrictMode
-	cookie.Path = "/"
+	cookie := http.Cookie{
+		Name:     "Token",
+		Value:    "nil",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+	}
 	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, "/", http.StatusFound)
 	c, err := r.Cookie("token")
 	if err != nil {
 		return
 	}
-	_, ok := a.sessions[c.Value]
-	if !ok {
-		return
+	a.db.Delete(&models.Token{}, c.Value)
+}
+
+func (a *Authenticator) newSession(user string) http.Cookie {
+	key := crypto.GenerateKey()
+	var session models.Token
+	session.User = user
+	session.Expiration = time.Now().Add(time.Hour * 24)
+	a.db.Create(&session)
+
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    key,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+		// Secure: true, #todo
 	}
-	fmt.Println("removing session")
-	delete(a.sessions, c.Value)
-	err = a.s.RevokeSession(c.Value)
-	fmt.Println(err)
+	return cookie
 }

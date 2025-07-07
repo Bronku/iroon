@@ -1,26 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/Bronku/iroon/auth"
 	"github.com/Bronku/iroon/logging"
+	"github.com/Bronku/iroon/models"
 	"github.com/Bronku/iroon/server"
-	"github.com/Bronku/iroon/store"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func main() {
-	s := store.OpenStore("./foo.db")
-	s.AddUser("admin", "secret")
-	defer s.Close()
-	h := server.New(s)
-	defer h.Close()
+	db, err := gorm.Open(sqlite.Open("foo.db"), &gorm.Config{})
+	if err != nil {
+		log.Fatal("failed to connect database")
+	}
+	db.AutoMigrate(&models.Order{}, &models.OrderItem{}, &models.Product{})
+
+	//s.AddUser("admin", "secret")
+	h := server.New(db)
 
 	var handler http.Handler = h
 	handler = logging.Middleware(handler)
-	handler = auth.New(s).Middleware(handler)
-	fmt.Println("starting server")
+	//handler = auth.New(s).Middleware(handler)
+	log.Println("starting server")
 	log.Fatal(http.ListenAndServe(":8080", handler))
 }

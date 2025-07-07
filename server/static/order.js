@@ -3,7 +3,7 @@ function addCake(id, name, price, amount) {
   if (cake != null) {
     cake.value = Number(cake.value) + 1;
     let tr = cake.parentElement.parentElement.parentElement;
-    console.log(tr);
+    //console.log(tr);
     tr.querySelector(".cake-total").innerText =
       `${price * Number(cake.value)}PLN`;
     updateTotalPrice();
@@ -41,7 +41,7 @@ function totalPrice() {
     let price = Number(priceString.substring(0, priceString.length - 3));
     let amount = Number(e.querySelector("input").value);
     out += price * amount;
-    console.log(out);
+    // console.log(out);
   });
   return out;
 }

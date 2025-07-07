@@ -16,6 +16,7 @@
 - [ ] Input Validation
 - [ ] Saparate routing logic, and http handlers
 - [ ] Better error Handling
+- [ ] handle every error
 - [ ] Migrate to gorm -> simplification of codebase
 - [ ] Proper session auth ?
 - [ ] /orders/search htmx trigger `<form class="search-container" hx-get="/orders/search" ...>`
@@ -25,6 +26,21 @@
 - [ ] ci/cd pipeline (github actions)
 - [ ] monitoring (prometheus, grafana)
 - [ ] structured logs (JSON format), log formatter
+- [ ] maybe a way to define what routes are protected outside the auth middleware, sort of like using the [protected] tag in some full stack solutions
+- [ ] configurable session expiration
+- [ ] rework server to simplify loading templates, and routes
+- [ ] make fatcher only return data, and error
+- [ ] move new cake/order into cake/order pages
+- [ ] new cake header instead of cake 0
+- [ ] permission System
+- [ ] form css
+- [ ] polish ui
+- [ ] proper confirmation pages (maybe popus with htmx?)
+- [ ] filter out done orders
+- [ ] daily summary page
+- [ ] maybe sending forms as json to simplify code?
+- [ ] move basekt_element_template to be together with script
+- [ ] can't edit already done routes
 
 
   - [ ] Phone number format validation

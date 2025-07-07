@@ -5,12 +5,12 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Bronku/iroon/store"
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	tmpl   map[string]*template.Template
-	s      *store.Store
+	db     *gorm.DB
 	routes map[string]route
 	http.Handler
 }
@@ -19,9 +19,6 @@ type route struct {
 	function      fetcher
 	template      string
 	templateEntry string
-}
-
-func (h *Server) Close() {
 }
 
 //go:embed static/*
@@ -42,8 +39,10 @@ func (h *Server) loadHandler() {
 	h.Handler = mux
 }
 
-func New(store *store.Store) *Server {
-	var server Server
+func New(db *gorm.DB) *Server {
+	server := Server{
+		db: db,
+	}
 
 	server.routes = map[string]route{
 		"GET /order/":         {server.order, "order", "layout"},
@@ -56,7 +55,7 @@ func New(store *store.Store) *Server {
 	}
 
 	server.loadTemplates()
-	server.s = store
+
 	server.loadHandler()
 
 	return &server

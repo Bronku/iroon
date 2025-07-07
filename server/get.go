@@ -2,12 +2,14 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Bronku/iroon/models"
+	"gorm.io/gorm/clause"
 )
 
 func monthInterval(y int, m time.Month) (firstDay, lastDay time.Time) {
@@ -24,13 +26,18 @@ func (h *Server) orders(_ *http.Request) (any, int, error) {
 	y, m, _ = time.Now().Date()
 	first, last := monthInterval(y, m)
 	fmt.Println(first, last)
-	orders, err := h.s.GetOrders(first, last)
+	var orders []models.Order
+	result := h.db.Preload("OrderItems.Product").Preload(clause.Associations).Where("date between ? and ?", first, last).Find(&orders)
+	if result.Error != nil {
+		log.Println("eroor getting orders")
+		return nil, http.StatusInternalServerError, result.Error
+	}
 	data := struct {
 		First  string
 		Last   string
 		Orders []models.Order
 	}{first.Format("2006-01-02"), last.Format("2006-01-02"), orders}
-	return data, http.StatusOK, err
+	return data, http.StatusOK, nil
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
@@ -42,20 +49,21 @@ func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
 	if err != nil {
 		to = time.Time{}
 	}
-	fmt.Println(from, to)
-	data, err := h.s.GetOrders(from, to)
-	return data, http.StatusOK, err
+	var orders []models.Order
+	result := h.db.Preload("OrderItems.Product").Preload(clause.Associations).Where("date between ? and ?", from, to).Find(&orders)
+	return orders, http.StatusOK, result.Error
 }
 
 func (h *Server) cakes(_ *http.Request) (any, int, error) {
-	data, err := h.s.GetCakes()
-	return data, http.StatusOK, err
+	var cakes []models.Product
+	result := h.db.Find(&cakes)
+	return cakes, http.StatusOK, result.Error
 }
 
 func (h *Server) cake(r *http.Request) (any, int, error) {
 	url := strings.Split(r.URL.String(), "/")
 	if len(url) < 3 || url[2] == "" {
-		return models.Cake{}, http.StatusOK, nil
+		return models.Product{}, http.StatusOK, nil
 	}
 
 	id, err := strconv.Atoi(url[2])
@@ -63,25 +71,21 @@ func (h *Server) cake(r *http.Request) (any, int, error) {
 		return nil, http.StatusBadRequest, err
 	}
 
-	data, err := h.s.GetCake(id)
-	if err != nil {
-		return nil, http.StatusNotFound, err
-	}
-
-	return data, http.StatusOK, nil
+	var cake models.Product
+	result := h.db.First(&cake, id)
+	return cake, http.StatusOK, result.Error
 }
 
 func (h *Server) order(r *http.Request) (any, int, error) {
 	type formData struct {
 		Order     models.Order
-		Catalogue []models.Cake
+		Catalogue []models.Product
 	}
-	var err error
 	var data formData
 
-	data.Catalogue, err = h.s.GetCakes()
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
+	result := h.db.Find(&data.Catalogue)
+	if result.Error != nil {
+		return nil, http.StatusInternalServerError, result.Error
 	}
 
 	url := strings.Split(r.URL.String(), "/")
@@ -94,9 +98,10 @@ func (h *Server) order(r *http.Request) (any, int, error) {
 		return nil, http.StatusBadRequest, err
 	}
 
-	data.Order, err = h.s.GetOrder(id)
-	if err != nil {
-		return nil, http.StatusNotFound, err
+	result = h.db.Preload("OrderItems.Product").Preload(clause.Associations).Find(&data.Order, id)
+	//result = h.db.Find(&data.Order, id)
+	if result.Error != nil {
+		return nil, http.StatusNotFound, result.Error
 	}
 
 	return data, http.StatusOK, nil
