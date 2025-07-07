@@ -15,7 +15,7 @@ func (a *Authenticator) getSession(r *http.Request) (models.Token, error) {
 		return models.Token{}, err
 	}
 	var session models.Token
-	result := a.db.First(&session, c.Value)
+	result := a.db.First(&session, "token = ?", c.Value)
 	if result.Error != nil {
 		return models.Token{}, errors.New("session not found")
 	}
@@ -58,9 +58,11 @@ func (a *Authenticator) logout(w http.ResponseWriter, r *http.Request) {
 
 func (a *Authenticator) newSession(user string) http.Cookie {
 	key := crypto.GenerateKey()
-	var session models.Token
-	session.User = user
-	session.Expiration = time.Now().Add(time.Hour * 24)
+	session := models.Token{
+		User:       user,
+		Expiration: time.Now().Add(time.Hour * 24),
+		Token:      key,
+	}
 	a.db.Create(&session)
 
 	cookie := http.Cookie{

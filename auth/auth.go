@@ -54,3 +54,33 @@ func (a *Authenticator) Middleware(in http.Handler) http.Handler {
 	})
 	return handler
 }
+
+//	func (s *Store) AddUser(login, password string) error {
+//		_, exists := s.GetUser(login)
+//		if exists {
+//			return errors.New("the user already exists")
+//		}
+//		query := "insert into user (login, password, salt) values(?, ?, ?)"
+//		salt := crypto.GenerateKey()
+//		hash := crypto.PasswordHash(password, salt)
+//		_, err := s.db.Exec(query, login, hash, salt)
+//		if err == nil {
+//			s.users[login] = models.User{Password: hash, Salt: salt}
+//		}
+//		return err
+//	}
+func (a *Authenticator) AddUser(login, password string) error {
+	var user models.User
+
+	result := a.db.First(&user, "login = ?", login)
+	if result.Error != gorm.ErrRecordNotFound {
+		return errors.New("user already exists")
+	}
+
+	salt := crypto.GenerateKey()
+	hash := crypto.PasswordHash(password, salt)
+
+	result = a.db.Save(&models.User{Login: login, Password: hash, Salt: salt})
+
+	return result.Error
+}
