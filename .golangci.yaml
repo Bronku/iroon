@@ -1,0 +1,24 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - wsl
+    - wsl_v5
+    - depguard
+    - embeddedstructfieldcheck
+    - exhaustruct
+    - funcorder
+    - godot
+    - musttag
+    - nlreturn
+  settings:
+    varnamelen:
+      ignore-names:
+        - err
+        - w
+        - r
+        - db
+    revive:
+      rules:
+        - name: exported
+          disabled: true

@@ -9,25 +9,29 @@ import (
 	"github.com/Bronku/iroon/models"
 )
 
+var ErrNoCookie = errors.New("session cookie not found")
+var ErrSessionNotFound = errors.New("session not found")
+var ErrSessionExpired = errors.New("session has expired")
+
 func (a *Authenticator) getSession(r *http.Request) (models.Token, error) {
-	c, err := r.Cookie("token")
+	cookie, err := r.Cookie("token")
 	if err != nil {
-		return models.Token{}, err
+		return models.Token{}, ErrNoCookie
 	}
 	var session models.Token
-	result := a.db.First(&session, "token = ?", c.Value)
+	result := a.db.First(&session, "token = ?", cookie.Value)
 	if result.Error != nil {
-		return models.Token{}, errors.New("session not found")
+		return models.Token{}, ErrSessionNotFound
 	}
 	if time.Since(session.Expiration) > 0 {
 		a.db.Delete(&session)
-		return models.Token{}, errors.New("session expired")
+		return models.Token{}, ErrSessionExpired
 	}
 	return session, nil
 }
 
 func (a *Authenticator) login(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	_ = r.ParseForm()
 	login := r.PostFormValue("login")
 	password := r.PostFormValue("password")
 	if a.verifyCredentials(login, password) != nil {
@@ -60,7 +64,7 @@ func (a *Authenticator) newSession(user string) http.Cookie {
 	key := crypto.GenerateKey()
 	session := models.Token{
 		User:       user,
-		Expiration: time.Now().Add(time.Hour * 24),
+		Expiration: time.Now().Add(a.config.SessionExpiration),
 		Token:      key,
 	}
 	a.db.Create(&session)

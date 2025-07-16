@@ -1,14 +1,15 @@
 package server
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Bronku/iroon/models"
+	"gorm.io/gorm"
 )
 
 func atoui(input string) (uint, error) {
@@ -19,73 +20,87 @@ func atoui(input string) (uint, error) {
 func (h *Server) postCake(r *http.Request) (any, int, error) {
 	err := r.ParseForm()
 	if err != nil {
-		return nil, http.StatusInternalServerError, err
+		return nil, http.StatusBadRequest, ErrInvalidForm
 	}
 
-	var n models.Product
-	n.ID, err = atoui(r.FormValue("id"))
+	var postedCake models.Product
+	postedCake.ID, err = atoui(r.FormValue("id"))
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return nil, http.StatusBadRequest, fmt.Errorf("%w cakeID", ErrWrongValue)
 	}
-	n.Name = r.FormValue("name")
-	n.Price, err = atoui(r.FormValue("price"))
+	postedCake.Name = r.FormValue("name")
+	postedCake.Price, err = atoui(r.FormValue("price"))
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return nil, http.StatusBadRequest, fmt.Errorf("%w price", ErrWrongValue)
 	}
-	result := h.db.Save(&n)
-	return n, http.StatusAccepted, result.Error
+	result := h.db.Save(&postedCake)
+	return postedCake, http.StatusAccepted, errors.Join(ErrSavingToDatabase, result.Error)
 }
 
-func (h *Server) postOrder(r *http.Request) (any, int, error) {
+func (h *Server) parseOrder(r *http.Request) (models.Order, error) {
 	var cakes []models.Product
 	result := h.db.Find(&cakes)
 	if result.Error != nil {
-		return nil, http.StatusInternalServerError, result.Error
+		return models.Order{}, ErrCatalogueNotFound
 	}
 
 	err := r.ParseForm()
-	log.Println("received form:", r.PostForm)
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return models.Order{}, ErrInvalidForm
 	}
 
-	var n models.Order
-	n.ID, err = atoui(r.FormValue("id"))
+	var postedOrder models.Order
+	postedOrder.ID, err = atoui(r.FormValue("id"))
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return models.Order{}, fmt.Errorf("%w orderID", ErrWrongValue)
 	}
-	n.Prepaid, err = atoui(r.FormValue("paid"))
+	postedOrder.Prepaid, err = atoui(r.FormValue("paid"))
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return models.Order{}, fmt.Errorf("%w prepaid", ErrWrongValue)
 	}
-	n.Date, err = time.Parse("2006-01-02", r.FormValue("date"))
+	postedOrder.Date, err = time.Parse("2006-01-02", r.FormValue("date"))
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return models.Order{}, fmt.Errorf("%w date", ErrWrongValue)
 	}
 
-	n.OrderItems = make([]models.OrderItem, 0)
+	postedOrder.OrderItems = make([]models.OrderItem, 0)
 	for _, e := range cakes {
 		count, err := atoui(r.FormValue(fmt.Sprintf("cake[%d]", e.ID)))
 		if err != nil {
 			continue
 		}
-		n.OrderItems = append(n.OrderItems, models.OrderItem{Amount: count, Product: e})
+		postedOrder.OrderItems = append(postedOrder.OrderItems, models.OrderItem{Amount: count, Product: e})
 	}
 
-	n.Name = strings.TrimSpace(r.FormValue("name"))
-	n.Surname = strings.TrimSpace(r.FormValue("surname"))
-	n.Phone = strings.TrimSpace(r.FormValue("phone"))
-	n.Location = strings.TrimSpace(r.FormValue("location"))
-	n.Status = strings.TrimSpace(r.FormValue("status"))
+	postedOrder.Name = strings.TrimSpace(r.FormValue("name"))
+	postedOrder.Surname = strings.TrimSpace(r.FormValue("surname"))
+	postedOrder.Phone = strings.TrimSpace(r.FormValue("phone"))
+	postedOrder.Location = strings.TrimSpace(r.FormValue("location"))
+	postedOrder.Status = strings.TrimSpace(r.FormValue("status"))
+	return postedOrder, nil
+}
 
-	log.Println("parsed order:", n)
-	err = h.db.Save(&n).Error
+func (h *Server) postOrder(r *http.Request) (any, int, error) {
+	postedOrder, err := h.parseOrder(r)
 	if err != nil {
-		log.Println("save: ", err)
+		return nil, http.StatusBadRequest, err
 	}
-	err = h.db.Model(&n).Association("OrderItems").Replace(n.OrderItems)
+
+	// i have no idea why this works, and other methods don't
+	err = h.db.Transaction(func(tx *gorm.DB) error {
+		err = tx.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&postedOrder).Error
+		if err != nil {
+			return fmt.Errorf("didn't save the order, %w", err)
+		}
+		err = tx.Model(&postedOrder).Association("OrderItems").Replace(postedOrder.OrderItems)
+		if err != nil {
+			return fmt.Errorf("didn't save the order items %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		log.Println("replace: ", err)
+		return nil, http.StatusInternalServerError, errors.Join(ErrSavingToDatabase, err)
 	}
-	return n, http.StatusAccepted, nil
+
+	return postedOrder, http.StatusAccepted, nil
 }

@@ -17,6 +17,7 @@
 - [ ] make fatcher only return data, and error
 - [ ] maybe sending forms as json to simplify code?
 - [ ] move basket_element_template to be together with script
+- [ ] make fetchers only return data, and error, and deduce the http response based on that
 
 ## new features
 - [ ] Backup System

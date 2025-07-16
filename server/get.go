@@ -2,19 +2,19 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Bronku/iroon/models"
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-func monthInterval(y int, m time.Month) (firstDay, lastDay time.Time) {
-	firstDay = time.Date(y, m, 1, 0, 0, 0, 0, time.UTC)
-	lastDay = time.Date(y, m+1, 1, 0, 0, 0, -1, time.UTC)
+func monthInterval(y int, m time.Month) (time.Time, time.Time) {
+	firstDay := time.Date(y, m, 1, 0, 0, 0, 0, time.UTC)
+	lastDay := time.Date(y, m+1, 1, 0, 0, 0, -1, time.UTC)
 	return firstDay, lastDay
 }
 
@@ -25,11 +25,13 @@ func (h *Server) orders(_ *http.Request) (any, int, error) {
 	)
 	y, m, _ = time.Now().Date()
 	first, last := monthInterval(y, m)
-	fmt.Println(first, last)
 	var orders []models.Order
-	result := h.db.Preload("OrderItems.Product").Preload(clause.Associations).Where("date between ? and ?", first, last).Find(&orders)
+	result := h.db.
+		Preload("OrderItems.Product").
+		Preload(clause.Associations).
+		Where("date between ? and ?", first, last).
+		Find(&orders)
 	if result.Error != nil {
-		log.Println("eroor getting orders")
 		return nil, http.StatusInternalServerError, result.Error
 	}
 	data := struct {
@@ -41,16 +43,20 @@ func (h *Server) orders(_ *http.Request) (any, int, error) {
 }
 
 func (h *Server) ordersSearch(r *http.Request) (any, int, error) {
-	from, err := time.Parse("2006-01-02", r.URL.Query().Get("from"))
+	startTime, err := time.Parse("2006-01-02", r.URL.Query().Get("from"))
 	if err != nil {
-		from = time.Time{}
+		startTime = time.Time{}
 	}
-	to, err := time.Parse("2006-01-02", r.URL.Query().Get("to"))
+	endTime, err := time.Parse("2006-01-02", r.URL.Query().Get("to"))
 	if err != nil {
-		to = time.Time{}
+		endTime = time.Time{}
 	}
 	var orders []models.Order
-	result := h.db.Preload("OrderItems.Product").Preload(clause.Associations).Where("date between ? and ?", from, to).Find(&orders)
+	result := h.db.
+		Preload("OrderItems.Product").
+		Preload(clause.Associations).
+		Where("date between ? and ?", startTime, endTime).
+		Find(&orders)
 	return orders, http.StatusOK, result.Error
 }
 
@@ -66,14 +72,17 @@ func (h *Server) cake(r *http.Request) (any, int, error) {
 		return models.Product{}, http.StatusOK, nil
 	}
 
-	id, err := strconv.Atoi(url[2])
+	cakeID, err := strconv.Atoi(url[2])
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return nil, http.StatusBadRequest, fmt.Errorf("%w cakeID", ErrWrongValue)
 	}
 
 	var cake models.Product
-	result := h.db.First(&cake, id)
-	return cake, http.StatusOK, result.Error
+	result := h.db.First(&cake, cakeID)
+	if result.Error != nil {
+		return models.Product{}, http.StatusNotFound, gorm.ErrRecordNotFound
+	}
+	return cake, http.StatusOK, nil
 }
 
 func (h *Server) order(r *http.Request) (any, int, error) {
@@ -85,7 +94,7 @@ func (h *Server) order(r *http.Request) (any, int, error) {
 
 	result := h.db.Find(&data.Catalogue)
 	if result.Error != nil {
-		return nil, http.StatusInternalServerError, result.Error
+		return nil, http.StatusInternalServerError, ErrCatalogueNotFound
 	}
 
 	url := strings.Split(r.URL.String(), "/")
@@ -93,15 +102,14 @@ func (h *Server) order(r *http.Request) (any, int, error) {
 		return data, http.StatusOK, nil
 	}
 
-	id, err := strconv.Atoi(url[2])
+	orderID, err := strconv.Atoi(url[2])
 	if err != nil {
-		return nil, http.StatusBadRequest, err
+		return nil, http.StatusBadRequest, fmt.Errorf("%w orderID", ErrWrongValue)
 	}
 
-	result = h.db.Preload("OrderItems.Product").Preload(clause.Associations).Find(&data.Order, id)
-	//result = h.db.Find(&data.Order, id)
+	result = h.db.Preload("OrderItems.Product").Preload(clause.Associations).Find(&data.Order, orderID)
 	if result.Error != nil {
-		return nil, http.StatusNotFound, result.Error
+		return nil, http.StatusNotFound, gorm.ErrRecordNotFound
 	}
 
 	return data, http.StatusOK, nil

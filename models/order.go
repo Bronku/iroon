@@ -37,5 +37,6 @@ func (o *Order) Total() uint {
 		out += e.Total()
 	}
 	out -= o.Prepaid
+
 	return out
 }

@@ -1,45 +1,54 @@
 package auth
 
 import (
-	_ "embed"
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Bronku/iroon/crypto"
 	"github.com/Bronku/iroon/models"
 	"gorm.io/gorm"
 )
 
-type Authenticator struct {
-	db *gorm.DB
+type Config struct {
+	SessionExpiration time.Duration
 }
 
-func New(db *gorm.DB) Authenticator {
+type Authenticator struct {
+	db     *gorm.DB
+	config Config
+}
+
+func New(db *gorm.DB, config Config) Authenticator {
 	err := db.AutoMigrate(&models.User{}, &models.Token{})
 	if err != nil {
 		log.Fatal("failed to initialize authenticator", err)
 	}
-	return Authenticator{db}
+	return Authenticator{db, config}
 }
 
-// #todo only used once, maybe remove it entierly later
+var ErrUserNotFound = errors.New("user with this login doesn't exist")
+var ErrWrongCredentials = errors.New("wrong credentials")
+
+// #todo only used once, maybe remove it entirely later
 func (a *Authenticator) verifyCredentials(login, password string) error {
 	var user models.User
 
 	result := a.db.First(&user, "login = ?", login)
 	if result.Error != nil {
-		return errors.New("user with this login doesn't exist")
+		return ErrUserNotFound
 	}
 
 	hash := crypto.PasswordHash(password, user.Salt)
 	if hash == user.Password {
 		return nil
 	}
-	return errors.New("wrong credentials")
+
+	return ErrWrongCredentials
 }
 
-func (a *Authenticator) Middleware(in http.Handler) http.Handler {
+func (a *Authenticator) Middleware(inner http.Handler) http.Handler {
 	handler := http.NewServeMux()
 	handler.HandleFunc("GET /login", getLogin)
 	handler.HandleFunc("POST /login", a.login)
@@ -50,31 +59,20 @@ func (a *Authenticator) Middleware(in http.Handler) http.Handler {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-		in.ServeHTTP(w, r)
+		inner.ServeHTTP(w, r)
 	})
+
 	return handler
 }
 
-//	func (s *Store) AddUser(login, password string) error {
-//		_, exists := s.GetUser(login)
-//		if exists {
-//			return errors.New("the user already exists")
-//		}
-//		query := "insert into user (login, password, salt) values(?, ?, ?)"
-//		salt := crypto.GenerateKey()
-//		hash := crypto.PasswordHash(password, salt)
-//		_, err := s.db.Exec(query, login, hash, salt)
-//		if err == nil {
-//			s.users[login] = models.User{Password: hash, Salt: salt}
-//		}
-//		return err
-//	}
+var ErrUsernameTaken = errors.New("username taken")
+
 func (a *Authenticator) AddUser(login, password string) error {
 	var user models.User
 
 	result := a.db.First(&user, "login = ?", login)
-	if result.Error != gorm.ErrRecordNotFound {
-		return errors.New("user already exists")
+	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ErrUsernameTaken
 	}
 
 	salt := crypto.GenerateKey()
